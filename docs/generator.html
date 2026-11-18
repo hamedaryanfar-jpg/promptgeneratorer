@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Promptgenerator</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main class="wrap">
+    <a class="back" id="back" href="./">← Alla generatorer</a>
+    <h1 id="title">Promptgenerator</h1>
+    <p class="letters" id="letters"></p>
+    <p class="lead" id="lead"></p>
+
+    <form id="form" novalidate>
+      <div id="fields"></div>
+      <div class="actions">
+        <button type="submit" class="primary" id="submit">Generera och kopiera</button>
+        <button type="button" id="example">Fyll i exempel</button>
+        <button type="button" id="reset">Rensa</button>
+      </div>
+    </form>
+
+    <section id="result" hidden>
+      <h2 id="resultTitle">Din prompt</h2>
+      <p id="status" role="status" aria-live="polite"></p>
+      <textarea id="output" readonly aria-label="Färdig prompt"></textarea>
+      <div class="actions"><button type="button" id="copyAgain">Kopiera igen</button></div>
+    </section>
+
+    <section class="box" id="notes" hidden>
+      <h2>Tips</h2>
+      <ul id="notesList"></ul>
+    </section>
+
+    <p id="source" class="source"></p>
+  </main>
+
+  <script src="assets/generator.js"></script>
+  <script src="assets/frameworks.js"></script>
+  <script>
+    // Vilken generator? Läses från adressen: generator.html?id=risen
+    const id = new URLSearchParams(location.search).get("id");
+    const config = generatorConfig(id);
+    const $ = (elementId) => document.getElementById(elementId);
+
+    if (!config) {
+      $("title").textContent = "Hittade ingen generator";
+      $("lead").innerHTML = 'Gå tillbaka till <a href="./">startsidan</a> och välj en.';
+      $("form").hidden = true;
+    } else {
+      const item = config.item;
+      const texts = item.texts ?? {};
+      const heading = `${item.emoji ? item.emoji + " " : ""}${item.name}${item.full ? " – " + item.full : ""}`;
+
+      document.title = `${item.name} – Promptgenerator`;
+      $("title").textContent = heading;
+
+      if (config.kind === "akronym") {
+        $("letters").textContent = item.letters.map((x) => `${x.l} – ${x.word}`).join(" · ");
+      }
+      $("lead").textContent = item.lead ?? (config.kind === "teknik" ? `${item.tagline} Passar för: ${item.when}` : item.tagline);
+
+      // Egna texter, t.ex. på göteborgska
+      if (texts.submit) $("submit").textContent = texts.submit;
+      if (texts.example) $("example").textContent = texts.example;
+      if (texts.reset) $("reset").textContent = texts.reset;
+      if (texts.back) $("back").textContent = texts.back;
+      if (texts.result) $("resultTitle").textContent = texts.result;
+
+      // Bokstäver som är arbetssätt snarare än en del av prompten
+      if (config.notes.length > 0) {
+        $("notes").hidden = false;
+        for (const note of config.notes) {
+          const li = document.createElement("li");
+          li.innerHTML = `<strong></strong> `;
+          li.querySelector("strong").textContent = `${note.l} – ${note.word}:`;
+          li.append(note.note);
+          $("notesList").appendChild(li);
+        }
+      }
+
+      // Källa
+      const source = SOURCES[item.source];
+      if (source) {
+        $("source").innerHTML = `Källa: <a href="${source.url}">${source.name}</a>`;
+      } else if (item.paper) {
+        $("source").innerHTML = `Forskningsartikel: <a href="${item.paper.url}">${item.paper.name}</a>`;
+      } else if (item.group === "lekfull") {
+        $("source").textContent = "Påhittad av kursens lärare. Fungerar ändå – den innehåller samma byggstenar som de seriösa.";
+      } else if (item.source === "egen") {
+        $("source").textContent = "Kursens egen akronym.";
+      }
+
+      createGenerator({
+        fields: config.fields,
+        build: config.build,
+        example: config.example,
+        storageKey: "generator:" + item.id,
+        texts
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Promptgeneratorer</title>
+  <meta name="description" content="Promptakronymer och prompttekniker som ifyllnadsmallar – fyll i rutorna och få en färdig prompt.">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main class="wrap wide">
+    <h1>Promptgeneratorer</h1>
+    <p class="lead">Välj en akronym eller teknik, fyll i rutorna och få en färdig prompt som kopieras direkt.</p>
+
+    <section class="box">
+      <h2>Det viktigaste först: byggstenarna</h2>
+      <p>Det finns hundratals promptakronymer. Men titta i tabellen längre ner: <strong>de består av samma byggstenar</strong>, bara i olika ordning och med olika namn. Lär dig byggstenarna, inte akronymerna.</p>
+      <p id="blocks" class="chips"></p>
+    </section>
+
+    <h2>Börja här</h2>
+    <div class="cards">
+      <a class="card" href="basta-praxis.html">
+        <h3>Bästa praxis</h3>
+        <p>Ingen akronym – bara Anthropics råd: var tydlig, ge sammanhang, var specifik, visa exempel och tillåt osäkerhet.</p>
+      </a>
+    </div>
+
+    <h2>Etablerade ramverk</h2>
+    <p class="muted">Ramverk som används i guider från universitet och utbildare.</p>
+    <div class="cards grid" id="etablerad"></div>
+
+    <h2>Lekfulla akronymer</h2>
+    <p class="muted">Påhittade av kursens lärare, mest på skämt. Men de fungerar, eftersom de innehåller samma byggstenar. Kolla tabellen: <strong>vilka saknar själva uppgiften?</strong></p>
+    <div class="cards grid" id="lekfull"></div>
+
+    <h2>Tekniker</h2>
+    <p class="muted">Inte mallar för vad en prompt ska innehålla, utan sätt att prompta på. <a href="tekniker.html">Läs om alla tekniker</a>.</p>
+    <div class="cards grid" id="tekniker"></div>
+
+    <h2>Jämför: vilka byggstenar har de?</h2>
+    <div class="table-wrap">
+      <table id="compare"></table>
+    </div>
+
+    <section class="box">
+      <h2>Övningar</h2>
+      <ul>
+        <li>Fyll i <strong>samma uppgift</strong> i tre olika akronymer. Blev prompterna olika? Blev svaren olika?</li>
+        <li>Vilka akronymer saknar <strong>uppgift</strong>? Vad händer om du skickar en prompt utan uppgift?</li>
+        <li>Hitta på en <strong>egen akronym</strong>. Den måste innehålla minst uppgift, sammanhang och format.</li>
+      </ul>
+    </section>
+
+    <footer>
+      Källor: <a href="https://teachandlearnai.com/uncategorized/acronyms-for-ai-prompts/">Teach and Learn AI</a> ·
+      <a href="https://guides.library.queensu.ca/ai/prompt">Queen's University Library</a> ·
+      <a href="https://claude.com/resources/articles/best-practices-for-prompt-engineering">Anthropic</a>
+    </footer>
+  </main>
+
+  <script src="assets/generator.js"></script>
+  <script src="assets/frameworks.js"></script>
+  <script>
+    function card(href, title, subtitle, text) {
+      const a = document.createElement("a");
+      a.className = "card";
+      a.href = href;
+      a.innerHTML = "<h3></h3><p class='meta'></p><p></p>";
+      a.querySelector("h3").textContent = title;
+      a.querySelector(".meta").textContent = subtitle;
+      a.querySelector("p:last-child").textContent = text;
+      return a;
+    }
+
+    // Byggstenarna som "chips"
+    document.getElementById("blocks").innerHTML =
+      CORE.map((c) => `<span class="chip">${c.name}</span>`).join("");
+
+    // Kort för akronymer
+    for (const fw of FRAMEWORKS) {
+      const letters = fw.letters.map((x) => x.word).join(" · ");
+      document.getElementById(fw.group).appendChild(
+        card(`generator.html?id=${fw.id}`, `${fw.emoji ? fw.emoji + " " : ""}${fw.name}`, letters, fw.tagline));
+    }
+
+    // Kort för tekniker
+    for (const t of TECHNIQUES) {
+      document.getElementById("tekniker").appendChild(
+        card(`generator.html?id=${t.id}`, t.name, t.full, t.tagline));
+    }
+
+    // Jämförelsetabell
+    const table = document.getElementById("compare");
+    const head = "<thead><tr><th scope='col'>Akronym</th>" + CORE.map((c) => `<th scope="col">${c.name}</th>`).join("") + "</tr></thead>";
+    const rows = FRAMEWORKS.map((fw) => {
+      const cells = coverage(fw).map((has, i) =>
+        has ? "<td class='yes' aria-label='ja'>✓</td>"
+            : (CORE[i].name === "Uppgift" ? "<td class='missing' aria-label='saknas'>saknas</td>" : "<td class='no' aria-label='nej'>·</td>"));
+      return `<tr><th scope="row"><a href="generator.html?id=${fw.id}">${fw.name}</a></th>${cells.join("")}</tr>`;
+    });
+    table.innerHTML = head + "<tbody>" + rows.join("") + "</tbody>";
+  </script>
+</body>
+</html>
