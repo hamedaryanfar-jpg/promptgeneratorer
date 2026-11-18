@@ -103,6 +103,18 @@ const prompt = F.generatorConfig("prompt");
 check(!F.lacksTask(F.findById("prompt")), "PROMPT: Purpose ska bära uppgiften");
 check(prompt.build(prompt.example).includes("Minska bias:"), "PROMPT: R ska vara Reduce bias");
 
+// 3c. PANEL (kursens egen teknik)
+const panel = F.findById("panel");
+const panelPrompt = panel.build({ ...panel.example });
+for (const who of ["UX-designer", "Frontendutvecklare", "Backendutvecklare", "Marknadsförare", "Ekonom", "Chef"]) {
+  check(panelPrompt.includes(`- ${who} – bevakar:`), `PANEL: saknar ${who}`);
+}
+check(panelPrompt.includes("säga emot"), "PANEL: personerna ska uppmanas säga emot");
+check(panelPrompt.includes("högst 3 rundor"), "PANEL: antal rundor saknas");
+check(panelPrompt.includes("inte att alla fick sin vilja igenom"), "PANEL: konsensus ska definieras");
+check(panel.build({ ...panel.example, goal: "beslut" }).includes("Chef lyssnar på alla"), "PANEL: sista personen ska fatta beslutet");
+check(panel.build({ ...panel.example, personas: "Lärare\nElev" }).includes("- Lärare\n- Elev"), "PANEL: personer utan kolon");
+
 // 4. Specialfall
 const gbg = F.generatorConfig("goteborg");
 const gbgPrompt = gbg.build({ ...gbg.example, "t-osaker": true });

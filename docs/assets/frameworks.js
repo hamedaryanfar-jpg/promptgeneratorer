@@ -680,6 +680,102 @@ const TECHNIQUES = [
       "Lös ett delsteg i taget och sätt till sist ihop resultatet till en helhet."
     ),
     example: { task: "Skriv en studiehandledning för en kurs om AI-verktyg på 5 veckor.", maxSteps: "5", pause: true }
+  },
+  {
+    // Kursens egen teknik. Närmaste forskning: Solo Performance Prompting.
+    id: "panel", name: "PANEL", full: "Expertpanel", own: true,
+    tagline: "AI:n spelar flera yrkesroller som diskuterar tills de når ett beslut alla kan stå bakom.",
+    when: "Beslut med flera perspektiv och målkonflikter: prioriteringar, design, strategi. Det är fortfarande en och samma AI – panelen hittar perspektiv du annars missar, men ersätter inte riktiga experter.",
+    paper: { name: "Wang m.fl. 2023 – Solo Performance Prompting (liknande idé)", url: "https://arxiv.org/abs/2307.05300" },
+    tips: [
+      "Ge varje person ett eget fokus (”Ekonom: kostnad, tid, avkastning”). Annars låter alla likadant.",
+      "Be dem uttryckligen säga emot. AI-personer håller annars med varandra alldeles för snabbt.",
+      "Konsensus betyder att alla kan stå bakom beslutet – inte att alla fick sin vilja igenom. Be om avvägningarna.",
+      "Begränsa antalet rundor. Annars blir diskussionen lång och börjar upprepa sig.",
+      "En djävulens advokat hittar svagheterna i förslag som alla håller med om.",
+      "Med ”bara resultatet” blir svaret kortare, men du ser inte hur panelen kom fram dit.",
+      "Det är en AI som spelar alla roller. Kontrollera viktiga fakta själv."
+    ],
+    fields: [
+      { id: "question", type: "textarea", rows: 3, required: true, label: "Fråga att diskutera",
+        placeholder: "t.ex. Hur gör vi webbsidan mest attraktiv för både kunder och AI-sökmotorer?" },
+      { id: "context", type: "textarea", rows: 3, label: "Bakgrund (valfritt)",
+        hint: "Läget i dag, budget, tid, begränsningar. Ju mer panelen vet, desto bättre beslut." },
+      { id: "personas", type: "textarea", rows: 6, required: true, label: "Panelen",
+        hint: "En person per rad. Skriv gärna vad de bevakar efter ett kolon: ”Ekonom: kostnad, tid, avkastning”.",
+        default: "UX-designer: användbarhet, tillgänglighet, förtroende\nFrontendutvecklare: prestanda, laddtider, semantisk HTML\nBackendutvecklare: säkerhet, strukturerad data, drift\nMarknadsförare: budskap, konvertering, synlighet i sök och AI-svar\nEkonom: kostnad, tid, avkastning\nChef: affärsmål, prioritering, risk" },
+      { id: "rounds", type: "select", label: "Antal diskussionsrundor", default: "3",
+        options: [{ value: "2", label: "2" }, { value: "3", label: "3" }, { value: "4", label: "4" }] },
+      { id: "goal", type: "select", label: "Hur avgörs det?", default: "konsensus",
+        options: [
+          { value: "konsensus", label: "Konsensus – alla kan stå bakom beslutet" },
+          { value: "beslut", label: "Den sista personen i listan fattar beslutet efter att ha hört alla" }
+        ] },
+      { id: "devil", type: "checkbox", default: true, label: "En djävulens advokat som letar svagheter i förslag som alla håller med om" },
+      { id: "show", type: "select", label: "Vad vill du se?", default: "kort",
+        options: [
+          { value: "full", label: "Hela diskussionen och resultatet" },
+          { value: "kort", label: "En kort sammanfattning per runda och resultatet" },
+          { value: "resultat", label: "Bara resultatet" }
+        ] }
+    ],
+    build: (v) => {
+      const people = v.personas.split("\n").map((p) => p.trim().replace(/^-\s*/, "")).filter(Boolean);
+      const panel = people.map((p) => {
+        const [name, focus] = p.split(/:(.*)/s).map((s) => s?.trim());
+        return focus ? `- ${name} – bevakar: ${focus}` : `- ${name}`;
+      }).join("\n");
+      const last = people[people.length - 1]?.split(":")[0].trim();
+
+      const rules = [
+        "Innan diskussionen börjar: skriv för varje person i en mening vad hen vill uppnå och vad hen oroar sig mest för, utifrån sin yrkesroll.",
+        "Runda 1: varje person ger sitt förslag och motiverar det utifrån sitt område.",
+        "Följande rundor: personerna bemöter varandras förslag. De ska säga emot när ett förslag krockar med deras område, med konkreta skäl – inte hålla med för att vara artiga.",
+        "En person får ändra sig när hen får ett bra argument, och säger då vad som övertygade hen.",
+        "Varje runda ska föra diskussionen framåt. Upprepa inte argument som redan sagts."
+      ];
+      if (v.devil) rules.push("En av personerna är djävulens advokat och letar efter svagheterna i de förslag som får medhåll.");
+      rules.push(`Avsluta efter högst ${v.rounds} rundor.`);
+
+      const decision = v.goal === "beslut"
+        ? `${last} lyssnar på alla och fattar sedan beslutet, och förklarar vilka avvägningar som gjordes.`
+        : "Panelen ska nå konsensus. Det betyder att alla kan stå bakom beslutet – inte att alla fick sin vilja igenom. Går en fråga inte att enas om, skriv det öppet och förklara avvägningen.";
+
+      const show = {
+        full: "Visa hela diskussionen, med namnet på den som talar före varje inlägg. Avsluta med resultatet.",
+        kort: "Visa en kort sammanfattning av varje runda (2–3 meningar), och avsluta med resultatet.",
+        resultat: "Visa bara resultatet, inte själva diskussionen."
+      }[v.show];
+
+      return lines(
+        "Simulera en panel med experter som diskuterar frågan nedan för att komma fram till den bästa lösningen.",
+        "",
+        `Fråga: ${v.question}`,
+        v.context ? `\nBakgrund: ${v.context}` : null,
+        "",
+        "Panelen:",
+        panel,
+        "",
+        "Regler för diskussionen:",
+        rules.map((r, i) => `${i + 1}. ${r}`).join("\n"),
+        "",
+        decision,
+        "",
+        "Resultatet ska innehålla:",
+        "- Beslutet, i en eller två meningar",
+        "- En prioriterad handlingsplan: vad som görs först och varför",
+        "- Avvägningar: vad som valdes bort och vems farhågor som inte löstes helt",
+        "- Hur ni vet att det fungerade: två–tre mätbara mål",
+        "",
+        show
+      );
+    },
+    example: {
+      question: "Hur gör vi vår webbsida så attraktiv som möjligt för både potentiella kunder och AI-baserade sökmotorer (till exempel ChatGPT-sök, Perplexity och Googles AI-översikter)?",
+      context: "Vi är ett litet IT-konsultbolag. Sidan har låg trafik och få förfrågningar via kontaktformuläret. Vi har två utvecklare i tre månader och en begränsad budget.",
+      personas: "UX-designer: användbarhet, tillgänglighet, förtroende\nFrontendutvecklare: prestanda, laddtider, semantisk HTML\nBackendutvecklare: säkerhet, strukturerad data, drift\nMarknadsförare: budskap, konvertering, synlighet i sök och AI-svar\nEkonom: kostnad, tid, avkastning\nChef: affärsmål, prioritering, risk",
+      rounds: "3", goal: "konsensus", devil: true, show: "kort"
+    }
   }
 ];
 

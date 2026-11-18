@@ -35,12 +35,12 @@
         <details><summary>Exempelprompt</summary><pre class="sample"></pre></details>
         <p class="actions-line"><a class="button-link" href="generator.html?id=${t.id}">Fyll i mallen →</a></p>
         <p class="paper"></p>`;
-      section.querySelector("h2").textContent = `${t.name} – ${t.full}`;
+      section.querySelector("h2").textContent = `${t.name} – ${t.full}${t.own ? " (kursens egen)" : ""}`;
       section.querySelector(".what").textContent = t.tagline;
       section.querySelector(".when").textContent = t.when;
       section.querySelector(".sample").textContent = t.build(t.example).replace(/\n{3,}/g, "\n\n").trim();
       if (t.paper) {
-        section.querySelector(".paper").innerHTML = `Forskningsartikel: <a href="${t.paper.url}"></a>`;
+        section.querySelector(".paper").innerHTML = `${t.own ? "Liknande idé i forskningen" : "Forskningsartikel"}: <a href="${t.paper.url}"></a>`;
         section.querySelector(".paper a").textContent = t.paper.name;
       }
       list.appendChild(section);

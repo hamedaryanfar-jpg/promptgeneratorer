@@ -97,7 +97,7 @@
     // Kort för tekniker
     for (const t of TECHNIQUES) {
       document.getElementById("tekniker").appendChild(
-        card(`generator.html?id=${t.id}`, t.name, t.full, t.tagline));
+        card(`generator.html?id=${t.id}`, t.name, t.full + (t.own ? " · kursens egen" : ""), t.tagline));
     }
 
     // Jämförelsetabell

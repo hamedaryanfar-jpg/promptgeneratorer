@@ -110,7 +110,8 @@
       } else if (source) {
         $("source").innerHTML = `Källa: <a href="${source.url}">${source.name}</a>`;
       } else if (item.paper) {
-        $("source").innerHTML = `Forskningsartikel: <a href="${item.paper.url}">${item.paper.name}</a>`;
+        const prefix = item.own ? "Kursens egen teknik. Liknande idé i forskningen: " : "Forskningsartikel: ";
+        $("source").innerHTML = `${prefix}<a href="${item.paper.url}">${item.paper.name}</a>`;
       } else if (item.group === "lekfull") {
         $("source").textContent = "Påhittad av kursens lärare. Fungerar ändå – den innehåller samma byggstenar som de seriösa.";
       } else if (item.source === "egen") {
