@@ -682,11 +682,11 @@ const TECHNIQUES = [
     example: { task: "Skriv en studiehandledning för en kurs om AI-verktyg på 5 veckor.", maxSteps: "5", pause: true }
   },
   {
-    // Kursens egen teknik. Närmaste forskning: Solo Performance Prompting.
-    id: "panel", name: "PANEL", full: "Expertpanel", own: true,
+    // Solo Performance Prompting: en AI simulerar flera personer som samarbetar.
+    id: "spp", name: "SPP", full: "Solo Performance Prompting (expertpanel)",
     tagline: "AI:n spelar flera yrkesroller som diskuterar tills de når ett beslut alla kan stå bakom.",
     when: "Beslut med flera perspektiv och målkonflikter: prioriteringar, design, strategi. Det är fortfarande en och samma AI – panelen hittar perspektiv du annars missar, men ersätter inte riktiga experter.",
-    paper: { name: "Wang m.fl. 2023 – Solo Performance Prompting (liknande idé)", url: "https://arxiv.org/abs/2307.05300" },
+    paper: { name: "Wang m.fl. 2023 – Solo Performance Prompting", url: "https://arxiv.org/abs/2307.05300" },
     tips: [
       "Ge varje person ett eget fokus (”Ekonom: kostnad, tid, avkastning”). Annars låter alla likadant.",
       "Be dem uttryckligen säga emot. AI-personer håller annars med varandra alldeles för snabbt.",
@@ -694,7 +694,8 @@ const TECHNIQUES = [
       "Begränsa antalet rundor. Annars blir diskussionen lång och börjar upprepa sig.",
       "En djävulens advokat hittar svagheterna i förslag som alla håller med om.",
       "Med ”bara resultatet” blir svaret kortare, men du ser inte hur panelen kom fram dit.",
-      "Det är en AI som spelar alla roller. Kontrollera viktiga fakta själv."
+      "Det är en AI som spelar alla roller. Kontrollera viktiga fakta själv.",
+      "SPP är en enkel variant i en enda prompt av det som multiagentramverk som CrewAI gör med riktiga, separata agenter som var och en har sin roll."
     ],
     fields: [
       { id: "question", type: "textarea", rows: 3, required: true, label: "Fråga att diskutera",

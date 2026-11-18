@@ -5,7 +5,7 @@
 
 - [x] Slice 2: Modellanpassade prompter (Claude, Claude Fable, GPT, Gemini) + jämförelsesida modeller.html. PROMPT rättad (R = Reduce bias, Queen's exempel). CoT varnar för nya modeller. Lekfulla akronymer sist på startsidan. (2026-11-18)
 
-- [x] PANEL – Expertpanel: kursens egen teknik (simulerade yrkesroller diskuterar till konsensus). Märkt som egen, länkar Solo Performance Prompting som liknande idé. (2026-11-18)
+- [x] SPP – Solo Performance Prompting (expertpanel): simulerade yrkesroller diskuterar till konsensus, med skydd mot falsk enighet. Källa: Wang m.fl. 2023. Inspirerad av multiagentramverk som CrewAI. (2026-11-18)
 
 ## Att göra
 

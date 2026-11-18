@@ -11,7 +11,7 @@ Ifyllnadsmallar för promptakronymer och prompttekniker. Fyll i rutorna och få 
 | Etablerade ramverk | RTF, RISEN, CREATE, CO-STAR, PROMPT, MARCUS |
 | Modellanpassade | Claude (chatt), Claude Fable (långa uppdrag), GPT, Gemini – enligt tillverkarnas egna guider, plus en jämförelsesida |
 | Lekfulla akronymer | KORV, POOP, SILLY, FART, BANAN, LASAGNE, TACOS, PANDA, KATT, HAMBURGER, SPAGHETTI, YOLO, BÖRK, KÖTTBULLAR, UNICORN, GÖTEBORG (på göteborgska) |
-| Tekniker | Zero-Shot, One-Shot, Few-Shot, Chain of Thought, Tree of Thought, ReAct, PAL, DECOMP och kursens egen PANEL (expertpanel) |
+| Tekniker | Zero-Shot, One-Shot, Few-Shot, Chain of Thought, Tree of Thought, ReAct, PAL, DECOMP och Solo Performance Prompting (expertpanel) |
 | Bästa praxis | Generell prompt enligt Anthropics råd |
 | Jämförelsetabell | Visar att alla akronymer består av samma byggstenar |
 
