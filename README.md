@@ -9,6 +9,7 @@ Ifyllnadsmallar för promptakronymer och prompttekniker. Fyll i rutorna och få 
 | Del | Vad |
 |---|---|
 | Etablerade ramverk | RTF, RISEN, CREATE, CO-STAR, PROMPT, MARCUS |
+| Modellanpassade | Claude (chatt), Claude Fable (långa uppdrag), GPT, Gemini – enligt tillverkarnas egna guider, plus en jämförelsesida |
 | Lekfulla akronymer | KORV, POOP, SILLY, FART, BANAN, LASAGNE, TACOS, PANDA, KATT, HAMBURGER, SPAGHETTI, YOLO, BÖRK, KÖTTBULLAR, UNICORN, GÖTEBORG (på göteborgska) |
 | Tekniker | Zero-Shot, One-Shot, Few-Shot, Chain of Thought, Tree of Thought, ReAct, PAL, DECOMP |
 | Bästa praxis | Generell prompt enligt Anthropics råd |
@@ -50,5 +51,6 @@ Kontrollerar bland annat att varje akronyms bokstäver stämmer med namnet, att 
 
 - [Teach and Learn AI – Acronyms for AI prompts](https://teachandlearnai.com/uncategorized/acronyms-for-ai-prompts/) (RISEN, CREATE, CO-STAR)
 - [Queen's University Library – Prompt](https://guides.library.queensu.ca/ai/prompt) (PROMPT)
+- Modellguider: Anthropic (Claude 5.x, Fable), OpenAI (GPT-4.1, GPT-5, reasoning), Google (Gemini) – länkade på modeller.html
 - [Anthropic – Best practices for prompt engineering](https://claude.com/resources/articles/best-practices-for-prompt-engineering)
 - Forskningsartiklar för teknikerna länkas på teknikersidan.

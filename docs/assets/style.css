@@ -182,3 +182,9 @@ pre.sample {
   border-radius: 8px;
   padding: 0.5rem 1rem;
 }
+
+/* ---------- Modelljämförelse ---------- */
+.compare-models th, .compare-models td { white-space: normal; text-align: left; vertical-align: top; min-width: 9rem; }
+.sample-box { margin: 0; }
+.sample-box h3 { margin: 0 0 0.5rem; font-size: 1rem; color: var(--accent); }
+.sample-box pre { margin: 0; font-size: 0.8rem; }

@@ -3,9 +3,13 @@
 ## Klart
 - [x] Slice 1: Generatorer för 22 akronymer (6 etablerade + 16 lekfulla) och 8 tekniker, startsida med jämförelsetabell, teknikersida, bästa praxis-sida. GÖTEBORG på göteborgska. Testad i Node (data/mallar) och headless Edge (alla 30 generatorer, mobilbredd). (2026-11-18)
 
+- [x] Slice 2: Modellanpassade prompter (Claude, Claude Fable, GPT, Gemini) + jämförelsesida modeller.html. PROMPT rättad (R = Reduce bias, Queen's exempel). CoT varnar för nya modeller. Lekfulla akronymer sist på startsidan. (2026-11-18)
+
 ## Att göra
 
 ## Beslut
+- Modellprompterna bygger bara på tillverkarnas egna guider. OpenAI:s hjälpartikel (help.openai.com) gav 403 och används inte; promptrule/geeksforgeeks tillförde inget utöver tillverkarnas råd.
+- Nya modeller ska inte ombes skriva ut sina tankar (Claude kan neka med reasoning_extraction, OpenAI avråder för resonerande modeller).
 - Eget repo för AI-kursen, separat från CLO26-repot (clo26-csharp-trello-klient).
 - Lekfulla akronymer i egen sektion, tydligt märkta som påhittade.
 - Akronymer som saknar uppgiftsbokstav (PROMPT, MARCUS, POOP, LASAGNE, PANDA, SPAGHETTI, BÖRK, UNICORN) får ett extra uppgiftsfält, märkt "saknas i X" – medvetet, som lärdom.

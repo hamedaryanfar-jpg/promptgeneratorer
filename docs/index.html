@@ -30,13 +30,17 @@
     <p class="muted">Ramverk som används i guider från universitet och utbildare.</p>
     <div class="cards grid" id="etablerad"></div>
 
-    <h2>Lekfulla akronymer</h2>
-    <p class="muted">Påhittade av kursens lärare, mest på skämt. Men de fungerar, eftersom de innehåller samma byggstenar. Kolla tabellen: <strong>vilka saknar själva uppgiften?</strong></p>
-    <div class="cards grid" id="lekfull"></div>
+    <h2>Modellanpassade prompter</h2>
+    <p class="muted">Samma uppgift, skriven så som Anthropic, OpenAI och Google själva rekommenderar för sina modeller. <a href="modeller.html">Jämför modellerna</a>.</p>
+    <div class="cards grid" id="modell"></div>
 
     <h2>Tekniker</h2>
     <p class="muted">Inte mallar för vad en prompt ska innehålla, utan sätt att prompta på. <a href="tekniker.html">Läs om alla tekniker</a>.</p>
     <div class="cards grid" id="tekniker"></div>
+
+    <h2>Lekfulla akronymer</h2>
+    <p class="muted">Påhittade av kursens lärare, mest på skämt. Men de fungerar, eftersom de innehåller samma byggstenar. Kolla tabellen: <strong>vilka saknar själva uppgiften?</strong></p>
+    <div class="cards grid" id="lekfull"></div>
 
     <h2>Jämför: vilka byggstenar har de?</h2>
     <div class="table-wrap">
@@ -82,6 +86,12 @@
       const letters = fw.letters.map((x) => x.word).join(" · ");
       document.getElementById(fw.group).appendChild(
         card(`generator.html?id=${fw.id}`, `${fw.emoji ? fw.emoji + " " : ""}${fw.name}`, letters, fw.tagline));
+    }
+
+    // Kort för modellprompter
+    for (const m of MODELS) {
+      document.getElementById("modell").appendChild(
+        card(`generator.html?id=${m.id}`, m.name, m.full, m.tagline));
     }
 
     // Kort för tekniker

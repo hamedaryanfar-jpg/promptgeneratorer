@@ -61,6 +61,10 @@
         $("letters").textContent = item.letters.map((x) => `${x.l} – ${x.word}`).join(" · ");
       }
       $("lead").textContent = item.lead ?? (config.kind === "teknik" ? `${item.tagline} Passar för: ${item.when}` : item.tagline);
+      if (config.kind === "modell") {
+        $("back").href = "modeller.html";
+        $("back").textContent = "← Jämför modellerna";
+      }
 
       // Egna texter, t.ex. på göteborgska
       if (texts.submit) $("submit").textContent = texts.submit;
@@ -81,9 +85,29 @@
         }
       }
 
+      // Modellprompter: förklara varför mallen ser ut som den gör
+      if (config.tips?.length > 0) {
+        $("notes").hidden = false;
+        $("notes").querySelector("h2").textContent = "Därför ser prompten ut så här";
+        for (const tip of config.tips) {
+          const li = document.createElement("li");
+          li.textContent = tip;
+          $("notesList").appendChild(li);
+        }
+      }
+
       // Källa
       const source = SOURCES[item.source];
-      if (source) {
+      if (config.sources?.length > 0) {
+        $("source").textContent = "Källor: ";
+        config.sources.forEach((s, i) => {
+          const a = document.createElement("a");
+          a.href = s.url;
+          a.textContent = s.name;
+          if (i > 0) $("source").append(" · ");
+          $("source").append(a);
+        });
+      } else if (source) {
         $("source").innerHTML = `Källa: <a href="${source.url}">${source.name}</a>`;
       } else if (item.paper) {
         $("source").innerHTML = `Forskningsartikel: <a href="${item.paper.url}">${item.paper.name}</a>`;
