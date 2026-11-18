@@ -12,7 +12,7 @@
 - Nya modeller ska inte ombes skriva ut sina tankar (Claude kan neka med reasoning_extraction, OpenAI avråder för resonerande modeller).
 - Eget repo för AI-kursen, separat från CLO26-repot (clo26-csharp-trello-klient).
 - Lekfulla akronymer i egen sektion, tydligt märkta som påhittade.
-- Akronymer som saknar uppgiftsbokstav (PROMPT, MARCUS, POOP, LASAGNE, PANDA, SPAGHETTI, BÖRK, UNICORN) får ett extra uppgiftsfält, märkt "saknas i X" – medvetet, som lärdom.
+- Akronymer som saknar uppgiftsbokstav (MARCUS, POOP, LASAGNE, PANDA, SPAGHETTI, BÖRK, UNICORN – PROMPT bär uppgiften i Purpose, enligt Queen's exempel) får ett extra uppgiftsfält, märkt "saknas i X" – medvetet, som lärdom.
 - Källorna sumsumsum.com / promptquorum / TechProFree används inte – tunna källor. Teknikerna länkar till forskningsartiklarna i stället.
 
 ## Öppna frågor
