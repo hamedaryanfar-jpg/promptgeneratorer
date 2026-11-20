@@ -3,66 +3,72 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Promptgeneratorer</title>
+  <title id="metaTitle">Promptgeneratorer</title>
   <meta name="description" content="Promptakronymer och prompttekniker som ifyllnadsmallar – fyll i rutorna och få en färdig prompt.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
   <main class="wrap wide">
-    <h1>Promptgeneratorer</h1>
-    <p class="lead">Välj en akronym eller teknik, fyll i rutorna och få en färdig prompt som kopieras direkt.</p>
+    <header class="top-nav" id="topNav"></header>
+
+    <h1 id="pageTitle">Promptgeneratorer</h1>
+    <p class="lead" id="pageLead">Välj en akronym eller teknik, fyll i rutorna och få en färdig prompt som kopieras direkt.</p>
 
     <section class="box">
-      <h2>Det viktigaste först: byggstenarna</h2>
-      <p>Det finns hundratals promptakronymer. Men titta i tabellen längre ner: <strong>de består av samma byggstenar</strong>, bara i olika ordning och med olika namn. Lär dig byggstenarna, inte akronymerna.</p>
+      <h2 id="blocksTitle">Det viktigaste först: byggstenarna</h2>
+      <p id="blocksText">Det finns hundratals promptakronymer. Men titta i tabellen längre ner: <strong>de består av samma byggstenar</strong>, bara i olika ordning och med olika namn. Lär dig byggstenarna, inte akronymerna.</p>
       <p id="blocks" class="chips"></p>
     </section>
 
-    <h2>Börja här</h2>
-    <div class="cards">
+    <h2 id="secStartHere">Börja här</h2>
+    <div class="cards" id="startCards">
       <a class="card" href="basta-praxis.html">
-        <h3>Bästa praxis</h3>
-        <p>Ingen akronym – bara Anthropics råd: var tydlig, ge sammanhang, var specifik, visa exempel och tillåt osäkerhet.</p>
+        <h3 id="bpCardTitle">Bästa praxis</h3>
+        <p id="bpCardText">Ingen akronym – bara Anthropics råd: var tydlig, ge sammanhang, var specifik, visa exempel och tillåt osäkerhet.</p>
       </a>
     </div>
 
-    <h2>Etablerade ramverk</h2>
-    <p class="muted">Ramverk som används i guider från universitet och utbildare.</p>
+    <h2 id="secEstablished">Etablerade ramverk</h2>
+    <p class="muted" id="secEstablishedMuted">Ramverk som används i guider från universitet och utbildare.</p>
     <div class="cards grid" id="etablerad"></div>
 
-    <h2>Modellanpassade prompter</h2>
-    <p class="muted">Samma uppgift, skriven så som Anthropic, OpenAI och Google själva rekommenderar för sina modeller. <a href="modeller.html">Jämför modellerna</a>.</p>
+    <h2 id="secModels">Modellanpassade prompter</h2>
+    <p class="muted" id="secModelsMuted">Samma uppgift, skriven så som Anthropic, OpenAI och Google själva rekommenderar för sina modeller. <a href="modeller.html">Jämför modellerna</a>.</p>
     <div class="cards grid" id="modell"></div>
 
-    <h2>Tekniker</h2>
-    <p class="muted">Inte mallar för vad en prompt ska innehålla, utan sätt att prompta på. <a href="tekniker.html">Läs om alla tekniker</a>.</p>
+    <h2 id="secTechniques">Tekniker</h2>
+    <p class="muted" id="secTechniquesMuted">Inte mallar för vad en prompt ska innehålla, utan sätt att prompta på. <a href="tekniker.html">Läs om alla tekniker</a>.</p>
     <div class="cards grid" id="tekniker"></div>
 
-    <h2>Lekfulla akronymer</h2>
-    <p class="muted">Påhittade av kursens lärare, mest på skämt. Men de fungerar, eftersom de innehåller samma byggstenar. Kolla tabellen: <strong>vilka saknar själva uppgiften?</strong></p>
+    <h2 id="secPlayful">Lekfulla akronymer</h2>
+    <p class="muted" id="secPlayfulMuted">Påhittade av kursens lärare, mest på skämt. Men de fungerar, eftersom de innehåller samma byggstenar. Kolla tabellen: <strong>vilka saknar själva uppgiften?</strong></p>
     <div class="cards grid" id="lekfull"></div>
 
-    <h2>Jämför: vilka byggstenar har de?</h2>
+    <h2 id="secCompare">Jämför: vilka byggstenar har de?</h2>
     <div class="table-wrap">
       <table id="compare"></table>
     </div>
 
     <section class="box">
-      <h2>Övningar</h2>
-      <ul>
+      <h2 id="secExercises">Övningar</h2>
+      <ul id="exercisesList">
         <li>Fyll i <strong>samma uppgift</strong> i tre olika akronymer. Blev prompterna olika? Blev svaren olika?</li>
         <li>Vilka akronymer saknar <strong>uppgift</strong>? Vad händer om du skickar en prompt utan uppgift?</li>
         <li>Hitta på en <strong>egen akronym</strong>. Den måste innehålla minst uppgift, sammanhang och format.</li>
       </ul>
     </section>
 
-    <footer>
+    <footer id="pageFooter">
       Källor: <a href="https://teachandlearnai.com/uncategorized/acronyms-for-ai-prompts/">Teach and Learn AI</a> ·
       <a href="https://guides.library.queensu.ca/ai/prompt">Queen's University Library</a> ·
       <a href="https://claude.com/resources/articles/best-practices-for-prompt-engineering">Anthropic</a>
     </footer>
   </main>
 
+  <script src="assets/i18n.js"></script>
   <script src="assets/generator.js"></script>
   <script src="assets/frameworks.js"></script>
   <script>
@@ -77,39 +83,110 @@
       return a;
     }
 
-    // Byggstenarna som "chips"
-    document.getElementById("blocks").innerHTML =
-      CORE.map((c) => `<span class="chip">${c.name}</span>`).join("");
+    function renderPage() {
+      const lang = I18N.getLang();
+      const $ = (id) => document.getElementById(id);
 
-    // Kort för akronymer
-    for (const fw of FRAMEWORKS) {
-      const letters = fw.letters.map((x) => x.word).join(" · ");
-      document.getElementById(fw.group).appendChild(
-        card(`generator.html?id=${fw.id}`, `${fw.emoji ? fw.emoji + " " : ""}${fw.name}`, letters, fw.tagline));
+      // Meta and titles
+      $("metaTitle").textContent = I18N.t("indexTitle");
+      $("pageTitle").textContent = I18N.t("indexTitle");
+      $("pageLead").textContent = I18N.t("indexLead");
+
+      // Blocks box
+      $("blocksTitle").textContent = I18N.t("blocksBoxTitle");
+      $("blocksText").innerHTML = I18N.t("blocksBoxText");
+
+      // Section titles & descriptions
+      $("secStartHere").textContent = I18N.t("startHere");
+      $("bpCardTitle").textContent = I18N.t("bestPracticeTitle");
+      $("bpCardText").textContent = I18N.t("bestPracticeCardText");
+
+      $("secEstablished").textContent = I18N.t("establishedFrameworks");
+      $("secEstablishedMuted").textContent = I18N.t("establishedFrameworksMuted");
+
+      $("secModels").textContent = I18N.t("modelPrompts");
+      $("secModelsMuted").innerHTML = I18N.t("modelPromptsMuted");
+
+      $("secTechniques").textContent = I18N.t("techniques");
+      $("secTechniquesMuted").innerHTML = I18N.t("techniquesMuted");
+
+      $("secPlayful").textContent = I18N.t("playfulFrameworks");
+      $("secPlayfulMuted").innerHTML = I18N.t("playfulFrameworksMuted");
+
+      $("secCompare").textContent = I18N.t("compareTableTitle");
+      $("secExercises").textContent = I18N.t("exercisesTitle");
+
+      // Exercises
+      $("exercisesList").innerHTML = I18N.UI.exercisesList.map((ex) => `<li>${ex[lang] || ex.sv}</li>`).join("");
+
+      // Chips
+      const coreNames = I18N.LOCALIZED_CORE[lang] || CORE.map((c) => c.name);
+      $("blocks").innerHTML = coreNames.map((name) => `<span class="chip">${name}</span>`).join("");
+
+      // Clear card grids
+      $("etablerad").innerHTML = "";
+      $("modell").innerHTML = "";
+      $("tekniker").innerHTML = "";
+      $("lekfull").innerHTML = "";
+
+      // Cards for frameworks
+      for (const fw of FRAMEWORKS) {
+        const cfg = generatorConfig(fw.id, lang);
+        const letters = cfg.fields
+          .filter((f) => f.id.startsWith("l"))
+          .map((f) => f.label)
+          .join(" · ");
+        const container = $(fw.group);
+        if (container) {
+          container.appendChild(
+            card(`generator.html?id=${fw.id}`, `${fw.emoji ? fw.emoji + " " : ""}${fw.name}`, letters, cfg.item.tagline)
+          );
+        }
+      }
+
+      // Cards for models
+      for (const m of MODELS) {
+        const cfg = generatorConfig(m.id, lang);
+        $("modell").appendChild(
+          card(`generator.html?id=${m.id}`, cfg.item.name, cfg.item.full, cfg.item.tagline)
+        );
+      }
+
+      // Cards for techniques
+      for (const t of TECHNIQUES) {
+        const cfg = generatorConfig(t.id, lang);
+        const suffix = lang === "sv" ? " · kursens egen" : (lang === "fa" ? " · تکنیک دوره" : " · course's own");
+        $("tekniker").appendChild(
+          card(`generator.html?id=${t.id}`, cfg.item.name, cfg.item.full + (t.own ? suffix : ""), cfg.item.tagline)
+        );
+      }
+
+      // Comparison table
+      const table = $("compare");
+      const colAcronym = I18N.t("tableColAcronym");
+      const lblYes = I18N.t("tableYes");
+      const lblMissing = I18N.t("tableMissing");
+      const lblNo = I18N.t("tableNo");
+
+      const head = "<thead><tr><th scope='col'>" + colAcronym + "</th>" + coreNames.map((name) => `<th scope="col">${name}</th>`).join("") + "</tr></thead>";
+      const rows = FRAMEWORKS.map((fw) => {
+        const cells = coverage(fw).map((has, i) =>
+          has ? `<td class='yes' aria-label='${lblYes}'>✓</td>`
+              : (CORE[i].name === "Uppgift" ? `<td class='missing' aria-label='${lblMissing}'>${lblMissing}</td>` : `<td class='no' aria-label='${lblNo}'>·</td>`));
+        return `<tr><th scope="row"><a href="generator.html?id=${fw.id}">${fw.name}</a></th>${cells.join("")}</tr>`;
+      });
+      table.innerHTML = head + "<tbody>" + rows.join("") + "</tbody>";
+
+      // Footer
+      const sourcesPrefix = I18N.t("sources");
+      $("pageFooter").innerHTML = `${sourcesPrefix}<a href="https://teachandlearnai.com/uncategorized/acronyms-for-ai-prompts/">Teach and Learn AI</a> · ` +
+        `<a href="https://guides.library.queensu.ca/ai/prompt">Queen's University Library</a> · ` +
+        `<a href="https://claude.com/resources/articles/best-practices-for-prompt-engineering">Anthropic</a>`;
     }
 
-    // Kort för modellprompter
-    for (const m of MODELS) {
-      document.getElementById("modell").appendChild(
-        card(`generator.html?id=${m.id}`, m.name, m.full, m.tagline));
-    }
-
-    // Kort för tekniker
-    for (const t of TECHNIQUES) {
-      document.getElementById("tekniker").appendChild(
-        card(`generator.html?id=${t.id}`, t.name, t.full + (t.own ? " · kursens egen" : ""), t.tagline));
-    }
-
-    // Jämförelsetabell
-    const table = document.getElementById("compare");
-    const head = "<thead><tr><th scope='col'>Akronym</th>" + CORE.map((c) => `<th scope="col">${c.name}</th>`).join("") + "</tr></thead>";
-    const rows = FRAMEWORKS.map((fw) => {
-      const cells = coverage(fw).map((has, i) =>
-        has ? "<td class='yes' aria-label='ja'>✓</td>"
-            : (CORE[i].name === "Uppgift" ? "<td class='missing' aria-label='saknas'>saknas</td>" : "<td class='no' aria-label='nej'>·</td>"));
-      return `<tr><th scope="row"><a href="generator.html?id=${fw.id}">${fw.name}</a></th>${cells.join("")}</tr>`;
-    });
-    table.innerHTML = head + "<tbody>" + rows.join("") + "</tbody>";
+    I18N.renderSwitcher(document.getElementById("topNav"));
+    renderPage();
+    window.addEventListener("langchange", () => renderPage());
   </script>
 </body>
 </html>

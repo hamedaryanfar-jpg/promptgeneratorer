@@ -1091,52 +1091,80 @@ function coverage(fw) {
 }
 
 /** Gör ett formulär av en akronym: en ruta per bokstav + kryssrutor för tekniker. */
-function fieldsFor(fw) {
+function fieldsFor(fw, lang) {
+  const activeLang = lang ?? (typeof I18N !== "undefined" ? I18N.getLang() : "sv");
+  const blocks = (typeof I18N !== "undefined" && I18N.LOCALIZED_BLOCKS?.[activeLang]) || BLOCKS;
+  const addons = (typeof I18N !== "undefined" && I18N.LOCALIZED_ADDONS?.[activeLang]) || ADDONS;
   const fields = [];
 
   if (lacksTask(fw)) {
+    const extraLabels = {
+      sv: { label: `+ Uppgift (saknas i ${fw.name})`, hint: `${fw.name} har ingen bokstav för själva uppgiften – men AI:n behöver veta vad den ska göra.` },
+      en: { label: `+ Task (missing in ${fw.name})`, hint: `${fw.name} has no letter for the task – but the AI needs to know what to do.` },
+      fa: { label: `+ وظیفه اصلی (در ${fw.name} وجود ندارد)`, hint: `${fw.name} حرفی برای خود وظیفه ندارد – اما هوش مصنوعی حتماً باید بداند چه کاری انجام دهد.` }
+    };
+    const extra = extraLabels[activeLang] || extraLabels.sv;
     fields.push({
       id: "extra-uppgift", type: "textarea", rows: 2, required: true,
-      label: `+ Uppgift (saknas i ${fw.name})`,
-      hint: `${fw.name} har ingen bokstav för själva uppgiften – men AI:n behöver veta vad den ska göra.`,
-      placeholder: BLOCKS.uppgift.placeholder
+      label: extra.label,
+      hint: extra.hint,
+      placeholder: blocks.uppgift.placeholder
     });
   }
 
+  const bbPrefixes = {
+    sv: "Byggsten: ",
+    en: "Building block: ",
+    fa: "بلوک سازنده: "
+  };
+  const bbPrefix = bbPrefixes[activeLang] || bbPrefixes.sv;
+
   fw.letters.forEach((x, i) => {
     if (!x.block) return;
-    const block = BLOCKS[x.block];
+    const block = blocks[x.block] || BLOCKS[x.block];
+    const override = (typeof I18N !== "undefined") ? I18N.LETTER_OVERRIDES?.[fw.id]?.[activeLang]?.[i] : null;
+    const word = override?.word || x.word;
+    const hint = override?.hint || (activeLang === "sv" ? x.hint : null) || block.hint;
+
     fields.push({
       id: `l${i}`, type: "textarea", rows: block.rows ?? 2,
       required: x.block === "uppgift" && !fields.some((f) => f.required),
-      label: `${x.l} – ${x.word}`,
-      hint: `Byggsten: ${block.label}. ${x.hint ?? block.hint}`,
-      placeholder: x.ph ?? block.placeholder // x.ph = egen platshållartext, t.ex. på göteborgska
+      label: `${x.l} – ${word}`,
+      hint: `${bbPrefix}${block.label}. ${hint}`,
+      placeholder: (activeLang === "sv" ? x.ph : null) ?? block.placeholder
     });
   });
 
-  for (const addon of ADDONS) {
-    const own = fw.addons?.[addon.id];
+  for (const addon of addons) {
+    const own = (activeLang === "sv") ? fw.addons?.[addon.id] : null;
     fields.push({ id: addon.id, type: "checkbox", label: own?.label ?? addon.label, default: addon.default ?? false });
   }
   return fields;
 }
 
 /** Bygger den färdiga prompten i akronymens ordning. */
-function buildPrompt(fw, v) {
+function buildPrompt(fw, v, lang) {
+  const activeLang = lang ?? (typeof I18N !== "undefined" ? I18N.getLang() : "sv");
+  const blocks = (typeof I18N !== "undefined" && I18N.LOCALIZED_BLOCKS?.[activeLang]) || BLOCKS;
+  const addons = (typeof I18N !== "undefined" && I18N.LOCALIZED_ADDONS?.[activeLang]) || ADDONS;
+
   const parts = [];
-  if (v["extra-uppgift"]) parts.push(section(BLOCKS.uppgift, null, v["extra-uppgift"]));
+  if (v["extra-uppgift"]) parts.push(section(blocks.uppgift, null, v["extra-uppgift"]));
 
   fw.letters.forEach((x, i) => {
     const value = v[`l${i}`];
-    if (x.block && value) parts.push(section(BLOCKS[x.block], x.heading, value));
+    if (x.block && value) {
+      const override = (typeof I18N !== "undefined") ? I18N.LETTER_OVERRIDES?.[fw.id]?.[activeLang]?.[i] : null;
+      const heading = override?.heading || (activeLang === "sv" ? x.heading : null) || null;
+      parts.push(section(blocks[x.block] || BLOCKS[x.block], heading, value));
+    }
   });
 
   const body = parts.join("\n\n");
-  const extras = ADDONS
+  const extras = addons
     .filter((a) => v[a.id])
-    .map((a) => fw.addons?.[a.id]?.line ?? a.line)
-    .filter((line) => !body.includes(line)); // undvik dubbletter (t.ex. MARCUS Understanding)
+    .map((a) => ((activeLang === "sv") ? fw.addons?.[a.id]?.line : null) ?? a.line)
+    .filter((line) => !body.includes(line));
 
   return [body, extras.join("\n")].filter(Boolean).join("\n\n");
 }
@@ -1158,36 +1186,91 @@ function section(block, heading, value) {
 }
 
 /** Exempelvärden för formuläret – samma scenario i alla akronymer. */
-function exampleFor(fw) {
-  const source = { ...EXAMPLE, ...fw.example };
+function exampleFor(fw, lang) {
+  const activeLang = lang ?? (typeof I18N !== "undefined" ? I18N.getLang() : "sv");
+  const baseExample = (typeof I18N !== "undefined" && I18N.LOCALIZED_EXAMPLES?.[activeLang]) || EXAMPLE;
+  const addons = (typeof I18N !== "undefined" && I18N.LOCALIZED_ADDONS?.[activeLang]) || ADDONS;
+  const source = (activeLang === "sv") ? { ...baseExample, ...fw.example } : { ...baseExample };
+
   const values = {};
   if (lacksTask(fw)) values["extra-uppgift"] = source.uppgift;
   fw.letters.forEach((x, i) => {
-    if (x.block) values[`l${i}`] = x.ex ?? source[x.block]; // x.ex = eget exempel för just den bokstaven
+    if (x.block) values[`l${i}`] = (activeLang === "sv" ? x.ex : null) ?? source[x.block];
   });
-  for (const addon of ADDONS) values[addon.id] = addon.default ?? false;
+  for (const addon of addons) values[addon.id] = addon.default ?? false;
   return values;
 }
 
 /** Allt generatorsidan behöver, oavsett om det är en akronym eller en teknik. */
-function generatorConfig(id) {
+function generatorConfig(id, lang) {
   const fw = findById(id);
   if (!fw) return null;
+  const activeLang = lang ?? (typeof I18N !== "undefined" ? I18N.getLang() : "sv");
+
+  if (activeLang !== "sv" && typeof I18N !== "undefined") {
+    // Model localized
+    if (fw.group === "modell" && I18N.LOCALIZED_MODEL_CONFIGS?.[id]?.[activeLang]) {
+      const mc = I18N.LOCALIZED_MODEL_CONFIGS[id][activeLang];
+      return {
+        item: { ...fw, ...mc.item },
+        kind: "modell",
+        fields: mc.fields,
+        build: mc.build,
+        example: mc.example,
+        notes: [],
+        tips: mc.tips || [],
+        sources: (fw.sources ?? []).map((key) => DOCS[key])
+      };
+    }
+    // Technique localized
+    if (fw.group !== "modell" && fw.fields && I18N.LOCALIZED_TECHNIQUE_CONFIGS?.[id]?.[activeLang]) {
+      const tc = I18N.LOCALIZED_TECHNIQUE_CONFIGS[id][activeLang];
+      return {
+        item: { ...fw, ...tc.item },
+        kind: "teknik",
+        fields: tc.fields,
+        build: tc.build,
+        example: tc.example,
+        notes: [],
+        tips: tc.tips || [],
+        sources: (fw.sources ?? []).map((key) => DOCS[key])
+      };
+    }
+  }
+
+  // Acronym notes localization:
+  let notes = fw.letters ? fw.letters.filter((x) => x.note) : [];
+  if (activeLang !== "sv" && typeof I18N !== "undefined" && notes.length > 0) {
+    notes = notes.map((n) => {
+      const idx = fw.letters.indexOf(n);
+      const override = I18N.LETTER_OVERRIDES?.[fw.id]?.[activeLang]?.[idx];
+      return {
+        ...n,
+        word: override?.word || n.word,
+        note: override?.note || n.note
+      };
+    });
+  }
+
+  const meta = (typeof I18N !== "undefined") ? (I18N.FRAMEWORK_META?.[id]?.[activeLang] || I18N.MODEL_META?.[id]?.[activeLang] || I18N.TECHNIQUE_META?.[id]?.[activeLang]) : null;
+  const localizedItem = meta ? { ...fw, ...meta } : fw;
 
   if (fw.fields) {
+    const tips = (typeof I18N !== "undefined" && I18N.MODEL_META?.[id]?.[activeLang]?.tips) || fw.tips || [];
     return {
-      item: fw, kind: fw.group === "modell" ? "modell" : "teknik",
+      item: localizedItem, kind: fw.group === "modell" ? "modell" : "teknik",
       fields: fw.fields, build: fw.build, example: fw.example, notes: [],
-      tips: fw.tips ?? [],
+      tips: tips,
       sources: (fw.sources ?? []).map((key) => DOCS[key])
     };
   }
+
   return {
-    item: fw, kind: "akronym",
-    fields: fieldsFor(fw),
-    build: (v) => buildPrompt(fw, v),
-    example: exampleFor(fw),
-    notes: fw.letters.filter((x) => x.note)
+    item: localizedItem, kind: "akronym",
+    fields: fieldsFor(fw, activeLang),
+    build: (v) => buildPrompt(fw, v, activeLang),
+    example: exampleFor(fw, activeLang),
+    notes: notes
   };
 }
 

@@ -3,83 +3,130 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Jämför modellerna – Promptgeneratorer</title>
+  <title id="metaTitle">Jämför modellerna – Promptgeneratorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
   <main class="wrap wide">
-    <a class="back" href="./">← Alla generatorer</a>
-    <h1>Samma uppgift – olika modeller</h1>
-    <p class="lead">Byggstenarna är desamma för alla AI-modeller. Men tillverkarna rekommenderar olika <em>form</em>: hur prompten struktureras, var underlaget ska stå och om man ska be modellen tänka.</p>
+    <header class="top-nav" id="topNav"></header>
+
+    <a class="back" id="back" href="./">← Alla generatorer</a>
+    <h1 id="pageTitle">Samma uppgift – olika modeller</h1>
+    <p class="lead" id="pageLead">Byggstenarna är desamma för alla AI-modeller. Men tillverkarna rekommenderar olika <em>form</em>: hur prompten struktureras, var underlaget ska stå och om man ska be modellen tänka.</p>
 
     <section class="box">
-      <h2>Det viktigaste först</h2>
-      <ul>
-        <li><strong>Inställningarna spelar ofta större roll än prompten.</strong> De nya modellerna tänker själva, och hur mycket styrs med en inställning (effort hos Claude, reasoning effort hos OpenAI). I chattappar heter det ofta ungefär ”tänk längre”.</li>
-        <li><strong>Be inte nya modeller skriva ut sina tankar.</strong> Claude kan neka, och OpenAI säger att det kan försämra resonerande modeller. Be hellre om en kort förklaring av svaret.</li>
-        <li><strong>Prompter är färskvara.</strong> Det som fungerade för förra årets modell kan vara onödigt eller skadligt för nästa. Läs tillverkarens guide när du byter modell.</li>
-      </ul>
+      <h2 id="crucialTitle">Det viktigaste först</h2>
+      <ul id="crucialList"></ul>
     </section>
 
-    <h2>Skillnaderna</h2>
+    <h2 id="differencesTitle">Skillnaderna</h2>
     <div class="table-wrap">
-      <table class="compare-models">
-        <thead>
-          <tr><th scope="col"></th><th scope="col">Claude 5.x</th><th scope="col">GPT (OpenAI)</th><th scope="col">Gemini 3+</th></tr>
-        </thead>
-        <tbody>
-          <tr><th scope="row">Struktur</th><td>XML-taggar</td><td>Markdown-rubriker</td><td>XML <em>eller</em> Markdown – välj en</td></tr>
-          <tr><th scope="row">Långt underlag</th><td>Först, frågan sist</td><td>Instruktionen både före och efter</td><td>Först, frågan sist</td></tr>
-          <tr><th scope="row">Exempel</th><td>3–5 st i egna taggar</td><td>Resonerande modeller: börja utan</td><td>Alltid, med identiskt format</td></tr>
-          <tr><th scope="row">”Tänk steg för steg”</th><td>Nej – styrs med effort</td><td>Nej för GPT-5/o-serien, ja för GPT-4.1</td><td>Oftast onödigt</td></tr>
-          <tr><th scope="row">Längd</th><td>Säg vad du vill ha</td><td>Säg det, och ange när svaret är klart</td><td>Kort som standard – be om utförligt</td></tr>
-          <tr><th scope="row">Särskilt</th><td>Säg varför och för vem. ”Aldrig” tas bokstavligt.</td><td>Bokstavlig. Vid krock vinner sista instruktionen.</td><td>Svarsprefix styr formatet.</td></tr>
-        </tbody>
-      </table>
+      <table class="compare-models" id="modelsTable"></table>
     </div>
 
-    <h2>Generatorer</h2>
+    <h2 id="secModelsTitle">Generatorer</h2>
     <div class="cards grid" id="models"></div>
 
-    <h2>Samma uppgift i alla fyra</h2>
-    <p class="muted">Uppgiften: förklara vad ett API är för nybörjare. Genererat med exemplen i varje generator.</p>
+    <h2 id="secSamplesTitle">Samma uppgift i alla fyra</h2>
+    <p class="muted" id="secSamplesMuted">Uppgiften: förklara vad ett API är för nybörjare. Genererat med exemplen i varje generator.</p>
     <div class="cards grid" id="samples"></div>
 
-    <footer id="sources">Källor: </footer>
+    <footer id="sources"></footer>
   </main>
 
+  <script src="assets/i18n.js"></script>
   <script src="assets/generator.js"></script>
   <script src="assets/frameworks.js"></script>
   <script>
-    for (const m of MODELS) {
-      // Kort till generatorn
-      const a = document.createElement("a");
-      a.className = "card";
-      a.href = `generator.html?id=${m.id}`;
-      a.innerHTML = "<h3></h3><p class='meta'></p><p></p>";
-      a.querySelector("h3").textContent = m.name;
-      a.querySelector(".meta").textContent = m.full;
-      a.querySelector("p:last-child").textContent = m.tagline;
-      document.getElementById("models").appendChild(a);
+    const $ = (id) => document.getElementById(id);
 
-      // Exempelprompt
-      const box = document.createElement("section");
-      box.className = "box sample-box";
-      box.innerHTML = "<h3></h3><pre class='sample'></pre>";
-      box.querySelector("h3").textContent = `${m.name} – ${m.full}`;
-      box.querySelector("pre").textContent = m.build({ ...m.example }).replace(/\n{3,}/g, "\n\n").trim();
-      document.getElementById("samples").appendChild(box);
+    function renderPage() {
+      const lang = I18N.getLang();
+
+      $("metaTitle").textContent = I18N.t("modPageTitle");
+      $("pageTitle").textContent = I18N.t("modHeading");
+      $("pageLead").innerHTML = I18N.t("modLead");
+      $("back").textContent = I18N.t("backAll");
+      $("crucialTitle").textContent = I18N.t("modCrucialTitle");
+      $("differencesTitle").textContent = I18N.t("modDifferences");
+      $("secModelsTitle").textContent = I18N.t("modGeneratorsTitle");
+      $("secSamplesTitle").textContent = I18N.t("modSamplesTitle");
+      $("secSamplesMuted").textContent = I18N.t("modSamplesMuted");
+
+      // Crucial points list
+      $("crucialList").innerHTML = I18N.UI.modCrucialList.map((item) => `<li>${item[lang] || item.sv}</li>`).join("");
+
+      // Comparison table
+      const thead = `
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col">Claude 5.x</th>
+            <th scope="col">GPT (OpenAI)</th>
+            <th scope="col">Gemini 3+</th>
+          </tr>
+        </thead>
+      `;
+      const tbody = `
+        <tbody>
+          ${I18N.UI.modTableRows.map((row) => `
+            <tr>
+              <th scope="row">${row.label[lang] || row.label.sv}</th>
+              <td>${row.claude[lang] || row.claude.sv}</td>
+              <td>${row.gpt[lang] || row.gpt.sv}</td>
+              <td>${row.gemini[lang] || row.gemini.sv}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      `;
+      $("modelsTable").innerHTML = thead + tbody;
+
+      // Model cards & sample prompts
+      $("models").innerHTML = "";
+      $("samples").innerHTML = "";
+
+      const sampleEx = (lang !== "sv" && I18N.LOCALIZED_MODEL_EXAMPLES[lang]) || null;
+
+      for (const m of MODELS) {
+        const cfg = generatorConfig(m.id, lang);
+
+        // Card to generator
+        const a = document.createElement("a");
+        a.className = "card";
+        a.href = `generator.html?id=${m.id}`;
+        a.innerHTML = "<h3></h3><p class='meta'></p><p></p>";
+        a.querySelector("h3").textContent = cfg.item.name;
+        a.querySelector(".meta").textContent = cfg.item.full;
+        a.querySelector("p:last-child").textContent = cfg.item.tagline;
+        $("models").appendChild(a);
+
+        // Sample prompt
+        const box = document.createElement("section");
+        box.className = "box sample-box";
+        box.innerHTML = "<h3></h3><pre class='sample'></pre>";
+        box.querySelector("h3").textContent = `${cfg.item.name} – ${cfg.item.full}`;
+        box.querySelector("pre").textContent = cfg.build(cfg.example).replace(/\n{3,}/g, "\n\n").trim();
+        $("samples").appendChild(box);
+      }
+
+      // Footer sources
+      const footer = $("sources");
+      footer.innerHTML = I18N.t("sources");
+      Object.values(DOCS).forEach((d, i) => {
+        if (i > 0) footer.append(" · ");
+        const link = document.createElement("a");
+        link.href = d.url;
+        link.textContent = d.name;
+        footer.append(link);
+      });
     }
 
-    // Källor
-    const footer = document.getElementById("sources");
-    Object.values(DOCS).forEach((d, i) => {
-      if (i > 0) footer.append(" · ");
-      const link = document.createElement("a");
-      link.href = d.url;
-      link.textContent = d.name;
-      footer.append(link);
-    });
+    I18N.renderSwitcher(document.getElementById("topNav"));
+    renderPage();
+    window.addEventListener("langchange", () => renderPage());
   </script>
 </body>
 </html>

@@ -3,11 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Promptgenerator</title>
+  <title id="metaTitle">Promptgenerator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
   <main class="wrap">
+    <header class="top-nav" id="topNav"></header>
+
     <a class="back" id="back" href="./">← Alla generatorer</a>
     <h1 id="title">Promptgenerator</h1>
     <p class="letters" id="letters"></p>
@@ -30,52 +35,77 @@
     </section>
 
     <section class="box" id="notes" hidden>
-      <h2>Tips</h2>
+      <h2 id="notesHeading">Tips</h2>
       <ul id="notesList"></ul>
     </section>
 
     <p id="source" class="source"></p>
   </main>
 
+  <script src="assets/i18n.js"></script>
   <script src="assets/generator.js"></script>
   <script src="assets/frameworks.js"></script>
   <script>
     // Vilken generator? Läses från adressen: generator.html?id=risen
     const id = new URLSearchParams(location.search).get("id");
-    const config = generatorConfig(id);
     const $ = (elementId) => document.getElementById(elementId);
 
-    if (!config) {
-      $("title").textContent = "Hittade ingen generator";
-      $("lead").innerHTML = 'Gå tillbaka till <a href="./">startsidan</a> och välj en.';
-      $("form").hidden = true;
-    } else {
+    function renderPage() {
+      const lang = I18N.getLang();
+      const config = generatorConfig(id, lang);
+
+      if (!config) {
+        $("title").textContent = I18N.t("notFoundTitle");
+        $("lead").innerHTML = I18N.t("notFoundLead");
+        $("form").hidden = true;
+        $("back").textContent = I18N.t("backAll");
+        return;
+      }
+
       const item = config.item;
       const texts = item.texts ?? {};
       const heading = `${item.emoji ? item.emoji + " " : ""}${item.name}${item.full ? " – " + item.full : ""}`;
 
-      document.title = `${item.name} – Promptgenerator`;
+      document.title = `${item.name} – ${I18N.t("indexTitle")}`;
       $("title").textContent = heading;
 
       if (config.kind === "akronym") {
-        $("letters").textContent = item.letters.map((x) => `${x.l} – ${x.word}`).join(" · ");
-      }
-      $("lead").textContent = item.lead ?? (config.kind === "teknik" ? `${item.tagline} Passar för: ${item.when}` : item.tagline);
-      if (config.kind === "modell") {
-        $("back").href = "modeller.html";
-        $("back").textContent = "← Jämför modellerna";
+        $("letters").textContent = config.fields
+          .filter((f) => f.id.startsWith("l"))
+          .map((f) => f.label)
+          .join(" · ");
+      } else {
+        $("letters").textContent = "";
       }
 
-      // Egna texter, t.ex. på göteborgska
-      if (texts.submit) $("submit").textContent = texts.submit;
-      if (texts.example) $("example").textContent = texts.example;
-      if (texts.reset) $("reset").textContent = texts.reset;
-      if (texts.back) $("back").textContent = texts.back;
-      if (texts.result) $("resultTitle").textContent = texts.result;
+      const suitableLabel = I18N.t("tekSuitableFor");
+      const techLead = item.when ? `${item.tagline} ${suitableLabel} ${item.when}` : item.tagline;
+      $("lead").textContent = (lang === "sv" && item.lead) ? item.lead : (config.kind === "teknik" ? techLead : item.tagline);
+
+      if (config.kind === "modell") {
+        $("back").href = "modeller.html";
+        $("back").textContent = I18N.t("backCompareModels");
+      } else {
+        $("back").href = "./";
+        $("back").textContent = I18N.t("backAll");
+      }
+
+      // Knappar och rubriker
+      $("submit").textContent = (lang === "sv" && texts.submit) ? texts.submit : I18N.t("btnSubmit");
+      $("example").textContent = (lang === "sv" && texts.example) ? texts.example : I18N.t("btnExample");
+      $("reset").textContent = (lang === "sv" && texts.reset) ? texts.reset : I18N.t("btnReset");
+      $("resultTitle").textContent = (lang === "sv" && texts.result) ? texts.result : I18N.t("yourPrompt");
+      $("copyAgain").textContent = I18N.t("btnCopyAgain");
+      $("output").setAttribute("aria-label", I18N.t("promptAriaLabel"));
+
+      // Rensa tips och anteckningar
+      $("notesList").innerHTML = "";
+      let hasNotes = false;
 
       // Bokstäver som är arbetssätt snarare än en del av prompten
       if (config.notes.length > 0) {
-        $("notes").hidden = false;
+        hasNotes = true;
+        $("notesHeading").textContent = I18N.t("tips");
         for (const note of config.notes) {
           const li = document.createElement("li");
           li.innerHTML = `<strong></strong> `;
@@ -87,19 +117,20 @@
 
       // Modellprompter: förklara varför mallen ser ut som den gör
       if (config.tips?.length > 0) {
-        $("notes").hidden = false;
-        $("notes").querySelector("h2").textContent = "Därför ser prompten ut så här";
+        hasNotes = true;
+        $("notesHeading").textContent = I18N.t("whyPromptLooksLikeThis");
         for (const tip of config.tips) {
           const li = document.createElement("li");
           li.textContent = tip;
           $("notesList").appendChild(li);
         }
       }
+      $("notes").hidden = !hasNotes;
 
-      // Källa
+      // Källor
       const source = SOURCES[item.source];
       if (config.sources?.length > 0) {
-        $("source").textContent = "Källor: ";
+        $("source").textContent = I18N.t("sources");
         config.sources.forEach((s, i) => {
           const a = document.createElement("a");
           a.href = s.url;
@@ -108,14 +139,16 @@
           $("source").append(a);
         });
       } else if (source) {
-        $("source").innerHTML = `Källa: <a href="${source.url}">${source.name}</a>`;
+        $("source").innerHTML = `${I18N.t("source")}<a href="${source.url}">${source.name}</a>`;
       } else if (item.paper) {
-        const prefix = item.own ? "Kursens egen teknik. Liknande idé i forskningen: " : "Forskningsartikel: ";
+        const prefix = item.own ? I18N.t("courseOwnTechnique") : I18N.t("researchPaper");
         $("source").innerHTML = `${prefix}<a href="${item.paper.url}">${item.paper.name}</a>`;
       } else if (item.group === "lekfull") {
-        $("source").textContent = "Påhittad av kursens lärare. Fungerar ändå – den innehåller samma byggstenar som de seriösa.";
+        $("source").textContent = I18N.t("playfulAcronymNote");
       } else if (item.source === "egen") {
-        $("source").textContent = "Kursens egen akronym.";
+        $("source").textContent = I18N.t("courseOwnAcronym");
+      } else {
+        $("source").textContent = "";
       }
 
       createGenerator({
@@ -123,9 +156,13 @@
         build: config.build,
         example: config.example,
         storageKey: "generator:" + item.id,
-        texts
+        texts: (lang === "sv") ? texts : {}
       });
     }
+
+    I18N.renderSwitcher(document.getElementById("topNav"));
+    renderPage();
+    window.addEventListener("langchange", () => renderPage());
   </script>
 </body>
 </html>

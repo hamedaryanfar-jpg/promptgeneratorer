@@ -3,48 +3,82 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Prompttekniker – Promptgeneratorer</title>
+  <title id="metaTitle">Prompttekniker – Promptgeneratorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
   <main class="wrap">
-    <a class="back" href="./">← Alla generatorer</a>
-    <h1>Prompttekniker</h1>
-    <p class="lead">Akronymerna säger <em>vad</em> en prompt ska innehålla. Teknikerna säger <em>hur</em> man promptar. De går att kombinera: lägg till "tänk steg för steg" i vilken akronym som helst.</p>
+    <header class="top-nav" id="topNav"></header>
+
+    <a class="back" id="back" href="./">← Alla generatorer</a>
+    <h1 id="pageTitle">Prompttekniker</h1>
+    <p class="lead" id="pageLead">Akronymerna säger <em>vad</em> en prompt ska innehålla. Teknikerna säger <em>hur</em> man promptar. De går att kombinera: lägg till "tänk steg för steg" i vilken akronym som helst.</p>
 
     <div id="list"></div>
 
     <section class="box">
-      <h2>Och en till: promptkedjor</h2>
-      <p>Dela upp ett stort jobb i <strong>flera prompter</strong>, där svaret från en blir underlag till nästa. Exempel: 1) sammanfatta en text, 2) granska sammanfattningen och ge feedback, 3) skriv om sammanfattningen utifrån feedbacken. Långsammare, men mer träffsäkert.</p>
-      <p>Källa: <a href="https://claude.com/resources/articles/best-practices-for-prompt-engineering">Anthropic: Best practices for prompt engineering</a></p>
+      <h2 id="chainsTitle">Och en till: promptkedjor</h2>
+      <p id="chainsText">Dela upp ett stort jobb i <strong>flera prompter</strong>, där svaret från en blir underlag till nästa. Exempel: 1) sammanfatta en text, 2) granska sammanfattningen och ge feedback, 3) skriv om sammanfattningen utifrån feedbacken. Långsammare, men mer träffsäkert.</p>
+      <p id="chainsSource"><span id="sourcePrefix">Källa: </span><a href="https://claude.com/resources/articles/best-practices-for-prompt-engineering">Anthropic: Best practices for prompt engineering</a></p>
     </section>
   </main>
 
+  <script src="assets/i18n.js"></script>
   <script src="assets/generator.js"></script>
   <script src="assets/frameworks.js"></script>
   <script>
-    const list = document.getElementById("list");
-    for (const t of TECHNIQUES) {
-      const section = document.createElement("section");
-      section.className = "box";
-      section.innerHTML = `
-        <h2></h2>
-        <p class="what"></p>
-        <p><strong>Passar för:</strong> <span class="when"></span></p>
-        <details><summary>Exempelprompt</summary><pre class="sample"></pre></details>
-        <p class="actions-line"><a class="button-link" href="generator.html?id=${t.id}">Fyll i mallen →</a></p>
-        <p class="paper"></p>`;
-      section.querySelector("h2").textContent = `${t.name} – ${t.full}${t.own ? " (kursens egen)" : ""}`;
-      section.querySelector(".what").textContent = t.tagline;
-      section.querySelector(".when").textContent = t.when;
-      section.querySelector(".sample").textContent = t.build(t.example).replace(/\n{3,}/g, "\n\n").trim();
-      if (t.paper) {
-        section.querySelector(".paper").innerHTML = `${t.own ? "Liknande idé i forskningen" : "Forskningsartikel"}: <a href="${t.paper.url}"></a>`;
-        section.querySelector(".paper a").textContent = t.paper.name;
+    const $ = (id) => document.getElementById(id);
+
+    function renderPage() {
+      const lang = I18N.getLang();
+
+      $("metaTitle").textContent = I18N.t("tekPageTitle");
+      $("pageTitle").textContent = I18N.t("tekHeading");
+      $("pageLead").innerHTML = I18N.t("tekLead");
+      $("back").textContent = I18N.t("backAll");
+      $("chainsTitle").textContent = I18N.t("tekChainsTitle");
+      $("chainsText").innerHTML = I18N.t("tekChainsText");
+      $("sourcePrefix").textContent = I18N.t("source");
+
+      const list = $("list");
+      list.innerHTML = "";
+
+      const ownSuffix = lang === "sv" ? " (kursens egen)" : (lang === "fa" ? " (تکنیک دوره)" : " (course's own)");
+      const suitableLabel = I18N.t("tekSuitableFor");
+      const sampleLabel = I18N.t("tekSamplePrompt");
+      const fillTemplateLabel = I18N.t("btnFillTemplate");
+
+      for (const t of TECHNIQUES) {
+        const cfg = generatorConfig(t.id, lang);
+
+        const section = document.createElement("section");
+        section.className = "box";
+        section.innerHTML = `
+          <h2></h2>
+          <p class="what"></p>
+          <p><strong>${suitableLabel}</strong> <span class="when"></span></p>
+          <details><summary>${sampleLabel}</summary><pre class="sample"></pre></details>
+          <p class="actions-line"><a class="button-link" href="generator.html?id=${t.id}">${fillTemplateLabel}</a></p>
+          <p class="paper"></p>`;
+
+        section.querySelector("h2").textContent = `${cfg.item.name} – ${cfg.item.full}${t.own ? ownSuffix : ""}`;
+        section.querySelector(".what").textContent = cfg.item.tagline;
+        section.querySelector(".when").textContent = cfg.item.when;
+        section.querySelector(".sample").textContent = cfg.build(cfg.example).replace(/\n{3,}/g, "\n\n").trim();
+        if (t.paper) {
+          const prefix = t.own ? I18N.t("courseOwnTechnique") : I18N.t("researchPaper");
+          section.querySelector(".paper").innerHTML = `${prefix}<a href="${t.paper.url}">${t.paper.name}</a>`;
+        }
+        list.appendChild(section);
       }
-      list.appendChild(section);
     }
+
+    I18N.renderSwitcher(document.getElementById("topNav"));
+    renderPage();
+    window.addEventListener("langchange", () => renderPage());
   </script>
 </body>
 </html>

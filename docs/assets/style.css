@@ -188,3 +188,98 @@ pre.sample {
 .sample-box { margin: 0; }
 .sample-box h3 { margin: 0 0 0.5rem; font-size: 1rem; color: var(--accent); }
 .sample-box pre { margin: 0; font-size: 0.8rem; }
+
+/* ---------- Top Navigation & Language Switcher ---------- */
+.top-nav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.lang-switch {
+  display: inline-flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.2rem;
+  gap: 0.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.lang-btn {
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.lang-btn:hover {
+  color: var(--text);
+  background: var(--code-bg);
+}
+
+.lang-btn.active {
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+/* ---------- RTL & Persian Font Support ---------- */
+[dir="rtl"], html[lang="fa"] body {
+  font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Tahoma", sans-serif;
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] .top-nav {
+  justify-content: flex-start;
+}
+
+[dir="rtl"] .box ul {
+  padding-left: 0;
+  padding-right: 1.25rem;
+}
+
+[dir="rtl"] tbody th {
+  text-align: right;
+}
+
+[dir="rtl"] .compare-models th,
+[dir="rtl"] .compare-models td {
+  text-align: right;
+}
+
+[dir="rtl"] .check {
+  direction: rtl;
+}
+
+[dir="rtl"] .check input {
+  margin-left: 0.6rem;
+  margin-right: 0;
+}
+
+[dir="rtl"] .actions {
+  direction: rtl;
+}
+
+[dir="rtl"] input[type="text"],
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] #output {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Vazirmatn', ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+

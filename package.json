@@ -1,0 +1,14 @@
+{
+  "name": "promptgeneratorer",
+  "version": "1.0.0",
+  "description": "Ifyllnadsmallar för promptakronymer och prompttekniker – Svenska, English, فارسی",
+  "private": true,
+  "scripts": {
+    "test": "node tests/test_frameworks.js && node tests/test_i18n.js",
+    "test:frameworks": "node tests/test_frameworks.js",
+    "test:i18n": "node tests/test_i18n.js",
+    "start": "python3 -m http.server 8080 -d docs",
+    "deploy": "wrangler pages deploy docs --project-name=promptgeneratorer",
+    "deploy:prod": "wrangler pages deploy docs --project-name=promptgeneratorer --branch=main"
+  }
+}

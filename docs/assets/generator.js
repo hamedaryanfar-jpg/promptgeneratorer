@@ -20,17 +20,30 @@ function createGenerator(config) {
   // Varje sida sparar sina egna värden i webbläsaren, så att inget försvinner vid omladdning.
   const storageKey = "promptplanner:" + (config.storageKey ?? location.pathname);
 
+  const defaultMissing = (typeof I18N !== "undefined") ? I18N.t("fillMissing") : "Fyll i: ";
+  const defaultCopied = (typeof I18N !== "undefined") ? I18N.t("copiedSuccess") : "✓ Kopierad! Klistra in den i din AI.";
+  const defaultCopyFailed = (typeof I18N !== "undefined") ? I18N.t("copiedFailed") : "Kunde inte kopiera automatiskt – texten är markerad, tryck Ctrl+C.";
+
   const texts = {
-    missing: "Fyll i: ",
-    copied: "✓ Kopierad! Klistra in den i din AI.",
-    copyFailed: "Kunde inte kopiera automatiskt – texten är markerad, tryck Ctrl+C.",
+    missing: defaultMissing,
+    copied: defaultCopied,
+    copyFailed: defaultCopyFailed,
     ...config.texts
   };
 
+  form._currentConfig = config;
+  form._storageKey = storageKey;
+  form._texts = texts;
+
   // ---------- Rita formuläret ----------
+  // Om användaren redan har skrivit något i formuläret innan språkväxling, bevara värdena
+  const currentFormValues = form._initialized ? readCurrentValues(config.fields) : null;
   const saved = loadSaved();
+  const initialValues = currentFormValues ?? saved;
+
+  fieldsBox.innerHTML = "";
   for (const field of config.fields) {
-    fieldsBox.appendChild(renderField(field, saved[field.id]));
+    fieldsBox.appendChild(renderField(field, initialValues[field.id]));
   }
 
   function renderField(field, savedValue) {
@@ -83,18 +96,26 @@ function createGenerator(config) {
   }
 
   // ---------- Läsa värden ----------
-  function readValues() {
+  function readCurrentValues(fields) {
     const values = {};
-    for (const field of config.fields) {
+    for (const field of fields) {
       const el = document.getElementById(field.id);
+      if (!el) continue;
       values[field.id] = field.type === "checkbox" ? el.checked : el.value.trim();
     }
     return values;
   }
 
+  function readValues() {
+    const currentCfg = form._currentConfig ?? config;
+    return readCurrentValues(currentCfg.fields);
+  }
+
   function fillValues(values) {
-    for (const field of config.fields) {
+    const currentCfg = form._currentConfig ?? config;
+    for (const field of currentCfg.fields) {
       const el = document.getElementById(field.id);
+      if (!el) continue;
       const value = values[field.id] ?? field.default ?? (field.type === "checkbox" ? false : "");
       if (field.type === "checkbox") el.checked = Boolean(value);
       else el.value = value;
@@ -102,56 +123,76 @@ function createGenerator(config) {
     }
   }
 
-  // ---------- Generera ----------
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault(); // formuläret ska inte skickas någonstans
-
-    const values = readValues();
-    const missing = config.fields.filter((f) => f.required && !values[f.id]);
-    for (const field of config.fields) {
-      document.getElementById(field.id).classList.toggle("invalid", missing.includes(field));
-    }
-    if (missing.length > 0) {
-      result.hidden = false;
-      output.value = "";
-      setStatus(texts.missing + missing.map((f) => f.label).join(", "), "error");
-      document.getElementById(missing[0].id).focus();
-      return;
-    }
-
-    save(values);
-    output.value = tidy(config.build(values));
-    result.hidden = false;
-    autoResize();
-    result.scrollIntoView({ behavior: "smooth", block: "start" });
-    await copyPrompt();
-  });
-
-  document.getElementById("copyAgain").addEventListener("click", copyPrompt);
-
-  document.getElementById("reset").addEventListener("click", () => {
-    fillValues({});
-    save({});
-    result.hidden = true;
-  });
-
   const exampleButton = document.getElementById("example");
-  if (exampleButton && config.example) {
-    exampleButton.addEventListener("click", () => fillValues(config.example));
-  } else if (exampleButton) {
-    exampleButton.hidden = true;
+  if (exampleButton) {
+    exampleButton.hidden = !Boolean(config.example);
+  }
+
+  // ---------- Koppla lyssnare bara en gång ----------
+  if (!form._initialized) {
+    form._initialized = true;
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault(); // formuläret ska inte skickas någonstans
+
+      const currentCfg = form._currentConfig;
+      const activeTexts = form._texts;
+      const values = readValues();
+      const missing = currentCfg.fields.filter((f) => f.required && !values[f.id]);
+      for (const field of currentCfg.fields) {
+        const el = document.getElementById(field.id);
+        if (el) el.classList.toggle("invalid", missing.includes(field));
+      }
+      if (missing.length > 0) {
+        result.hidden = false;
+        output.value = "";
+        setStatus(activeTexts.missing + missing.map((f) => f.label).join(", "), "error");
+        const firstEl = document.getElementById(missing[0].id);
+        if (firstEl) firstEl.focus();
+        return;
+      }
+
+      save(values);
+      output.value = tidy(currentCfg.build(values));
+      result.hidden = false;
+      autoResize();
+      result.scrollIntoView({ behavior: "smooth", block: "start" });
+      await copyPrompt();
+    });
+
+    const copyAgainBtn = document.getElementById("copyAgain");
+    if (copyAgainBtn) {
+      copyAgainBtn.addEventListener("click", copyPrompt);
+    }
+
+    const resetBtn = document.getElementById("reset");
+    if (resetBtn) {
+      resetBtn.addEventListener("click", () => {
+        fillValues({});
+        save({});
+        result.hidden = true;
+      });
+    }
+
+    if (exampleButton) {
+      exampleButton.addEventListener("click", () => {
+        const currentCfg = form._currentConfig;
+        if (currentCfg.example) fillValues(currentCfg.example);
+      });
+    }
   }
 
   // ---------- Hjälpfunktioner ----------
   async function copyPrompt() {
+    const activeTexts = form._texts ?? texts;
     try {
       await navigator.clipboard.writeText(output.value);
-      setStatus(texts.copied, "ok");
+      setStatus(activeTexts.copied, "ok");
     } catch {
       // Reserv om webbläsaren inte tillåter urklipp: markera texten så att man kan trycka Ctrl+C.
       output.focus();
       output.select();
-      setStatus(texts.copyFailed, "error");
+      setStatus(activeTexts.copyFailed, "error");
     }
   }
 
@@ -171,16 +212,18 @@ function createGenerator(config) {
   }
 
   function loadSaved() {
+    const key = form._storageKey ?? storageKey;
     try {
-      return JSON.parse(localStorage.getItem(storageKey)) ?? {};
+      return JSON.parse(localStorage.getItem(key)) ?? {};
     } catch {
       return {};
     }
   }
 
   function save(values) {
+    const key = form._storageKey ?? storageKey;
     try {
-      localStorage.setItem(storageKey, JSON.stringify(values));
+      localStorage.setItem(key, JSON.stringify(values));
     } catch {
       /* t.ex. privat fönster – då sparar vi helt enkelt inte */
     }

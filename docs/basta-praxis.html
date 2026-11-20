@@ -3,124 +3,303 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bästa praxis – Promptgeneratorer</title>
+  <title id="metaTitle">Bästa praxis – Promptgeneratorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
   <main class="wrap">
-    <a class="back" href="./">← Alla generatorer</a>
-    <h1>Generell prompt enligt bästa praxis</h1>
-    <p class="lead">För vilken uppgift som helst. Bara uppgiften är obligatorisk, men ju fler rutor du fyller i, desto bättre svar brukar du få.</p>
+    <header class="top-nav" id="topNav"></header>
+
+    <a class="back" id="back" href="./">← Alla generatorer</a>
+    <h1 id="pageTitle">Generell prompt enligt bästa praxis</h1>
+    <p class="lead" id="pageLead">För vilken uppgift som helst. Bara uppgiften är obligatorisk, men ju fler rutor du fyller i, desto bättre svar brukar du få.</p>
 
     <form id="form" novalidate>
       <div id="fields"></div>
       <div class="actions">
-        <button type="submit" class="primary">Generera och kopiera</button>
+        <button type="submit" class="primary" id="submit">Generera och kopiera</button>
         <button type="button" id="example">Fyll i exempel</button>
         <button type="button" id="reset">Rensa</button>
       </div>
     </form>
 
     <section id="result" hidden>
-      <h2>Din prompt</h2>
+      <h2 id="resultTitle">Din prompt</h2>
       <p id="status" role="status" aria-live="polite"></p>
       <textarea id="output" readonly aria-label="Färdig prompt"></textarea>
       <div class="actions"><button type="button" id="copyAgain">Kopiera igen</button></div>
     </section>
 
     <section class="box">
-      <h2>Varför de här rutorna?</h2>
-      <ul>
-        <li><strong>Var tydlig:</strong> börja med ett verb och säg exakt vad du vill ha. AI:n gissar inte vad du menar.</li>
-        <li><strong>Ge sammanhang:</strong> berätta <em>varför</em> och för vem. Då kan AI:n fatta bättre beslut även om sådant du inte nämnt.</li>
-        <li><strong>Var specifik:</strong> längd, nivå, begränsningar och struktur.</li>
-        <li><strong>Visa ett exempel</strong> i stället för att beskriva. Börja med ett och lägg till fler bara om det behövs.</li>
-        <li><strong>Beskriv formen du vill ha,</strong> inte det du vill slippa: "skriv i löpande stycken" fungerar bättre än "använd inga punktlistor".</li>
-        <li><strong>Tillåt osäkerhet:</strong> låt AI:n säga "det vet jag inte" i stället för att hitta på.</li>
-        <li><strong>En sak i taget:</strong> är uppgiften stor, dela upp den i flera prompter där svaret från en blir underlag till nästa.</li>
-      </ul>
-      <p>Källa: <a href="https://claude.com/resources/articles/best-practices-for-prompt-engineering">Best practices for prompt engineering</a> (Anthropic)</p>
+      <h2 id="whyTitle">Varför de här rutorna?</h2>
+      <ul id="whyList"></ul>
+      <p id="sourceP"><span id="sourcePrefix">Källa: </span><a href="https://claude.com/resources/articles/best-practices-for-prompt-engineering">Best practices for prompt engineering</a> (Anthropic)</p>
     </section>
   </main>
 
+  <script src="assets/i18n.js"></script>
   <script src="assets/generator.js"></script>
   <script>
-    createGenerator({
-      fields: [
-        {
-          id: "task", type: "textarea", rows: 3, required: true,
-          label: "Uppgift",
-          hint: "Börja med ett verb. Vad ska AI:n göra, och vad ska svaret innehålla?",
-          placeholder: "t.ex. Förklara skillnaden mellan en class och en record i C#, med ett kodexempel för varje."
-        },
-        {
-          id: "context", type: "textarea", rows: 3,
-          label: "Sammanhang: varför och för vem?",
-          hint: "Vem är svaret till, vad ska det användas till och vilket problem löser det?",
-          placeholder: "t.ex. Jag pluggar inför ett prov och förstår inte när man ska välja vilken."
-        },
-        {
-          id: "requirements", type: "textarea", rows: 3,
-          label: "Krav och begränsningar",
-          hint: "En per rad: längd, nivå, tid, teknik, budget …",
-          placeholder: "t.ex. Max en halv A4-sida\nAnpassa för nybörjare\nAnvänd .NET 10"
-        },
-        {
-          id: "format", type: "textarea", rows: 2,
-          label: "Hur ska svaret se ut?",
-          hint: "Beskriv det du vill ha, inte det du vill slippa. Tabell, lista, löpande text, kod …",
-          placeholder: "t.ex. Löpande text med en kort jämförelsetabell på slutet."
-        },
-        {
-          id: "example", type: "textarea", rows: 4,
-          label: "Exempel på hur det ska se ut (valfritt)",
-          hint: "Ett exempel säger mer än en lång beskrivning."
-        },
-        {
-          id: "material", type: "textarea", rows: 5,
-          label: "Underlag (valfritt)",
-          hint: "Text, kod eller data som AI:n ska utgå från. Långt underlag hamnar sist i prompten."
-        },
-        {
-          id: "role", type: "text",
-          label: "Roll (valfritt)",
-          hint: "Håll den enkel. Bra för ton och perspektiv, men behövs oftast inte.",
-          placeholder: "t.ex. en tålmodig lärare i C#"
-        },
-        { id: "stepByStep", type: "checkbox", label: "Be AI:n tänka steg för steg innan den svarar (bra för svåra problem)" },
-        { id: "uncertainty", type: "checkbox", label: "Låt AI:n säga till om den inte vet, i stället för att gissa", default: true }
-      ],
-
-      build: (v) => lines(
-        v.role ? `Du är ${v.role}.\n` : null,
-        v.task,
-        "",
-        block("Sammanhang:", v.context),
-        block("Krav:", v.requirements && bullets(v.requirements)),
-        block("Svaret ska se ut så här:", v.format),
-        block("Här är ett exempel på stilen jag vill ha:", v.example),
-        block("Underlag:", v.material),
-        v.material ? "Utför uppgiften ovan utifrån underlaget.\n" : null,
-        v.stepByStep ? "Tänk steg för steg innan du svarar." : null,
-        v.uncertainty
-          ? (v.material
-              ? "Om underlaget inte räcker eller om du är osäker, säg det i stället för att gissa."
-              : "Om du saknar information eller är osäker, säg det i stället för att gissa.")
-          : null
-      ),
-
-      example: {
-        task: "Förklara skillnaden mellan en class och en record i C#, och ge ett kort kodexempel för varje.",
-        context: "Jag är student i termin 1 och pluggar inför ett prov. Jag förstår inte när man ska välja vilken.",
-        requirements: "Max en halv A4-sida\nAnpassa för nybörjare\nAnvänd .NET 10",
-        format: "Löpande text, kodexemplen i kodblock och en kort jämförelsetabell på slutet.",
-        example: "",
-        material: "",
-        role: "en tålmodig lärare i C#",
-        stepByStep: false,
-        uncertainty: true
+    const CONFIGS = {
+      sv: {
+        fields: [
+          {
+            id: "task", type: "textarea", rows: 3, required: true,
+            label: "Uppgift",
+            hint: "Börja med ett verb. Vad ska AI:n göra, och vad ska svaret innehålla?",
+            placeholder: "t.ex. Förklara skillnaden mellan en class och en record i C#, med ett kodexempel för varje."
+          },
+          {
+            id: "context", type: "textarea", rows: 3,
+            label: "Sammanhang: varför och för vem?",
+            hint: "Vem är svaret till, vad ska det användas till och vilket problem löser det?",
+            placeholder: "t.ex. Jag pluggar inför ett prov och förstår inte när man ska välja vilken."
+          },
+          {
+            id: "requirements", type: "textarea", rows: 3,
+            label: "Krav och begränsningar",
+            hint: "En per rad: längd, nivå, tid, teknik, budget …",
+            placeholder: "t.ex. Max en halv A4-sida\nAnpassa för nybörjare\nAnvänd .NET 10"
+          },
+          {
+            id: "format", type: "textarea", rows: 2,
+            label: "Hur ska svaret se ut?",
+            hint: "Beskriv det du vill ha, inte det du vill slippa. Tabell, lista, löpande text, kod …",
+            placeholder: "t.ex. Löpande text med en kort jämförelsetabell på slutet."
+          },
+          {
+            id: "example", type: "textarea", rows: 4,
+            label: "Exempel på hur det ska se ut (valfritt)",
+            hint: "Ett exempel säger mer än en lång beskrivning."
+          },
+          {
+            id: "material", type: "textarea", rows: 5,
+            label: "Underlag (valfritt)",
+            hint: "Text, kod eller data som AI:n ska utgå från. Långt underlag hamnar sist i prompten."
+          },
+          {
+            id: "role", type: "text",
+            label: "Roll (valfritt)",
+            hint: "Håll den enkel. Bra för ton och perspektiv, men behövs oftast inte.",
+            placeholder: "t.ex. en tålmodig lärare i C#"
+          },
+          { id: "stepByStep", type: "checkbox", label: "Be AI:n tänka steg för steg innan den svarar (bra för svåra problem)" },
+          { id: "uncertainty", type: "checkbox", label: "Låt AI:n säga till om den inte vet, i stället för att gissa", default: true }
+        ],
+        build: (v) => lines(
+          v.role ? `Du är ${v.role}.\n` : null,
+          v.task,
+          "",
+          block("Sammanhang:", v.context),
+          block("Krav:", v.requirements && bullets(v.requirements)),
+          block("Svaret ska se ut så här:", v.format),
+          block("Här är ett exempel på stilen jag vill ha:", v.example),
+          block("Underlag:", v.material),
+          v.material ? "Utför uppgiften ovan utifrån underlaget.\n" : null,
+          v.stepByStep ? "Tänk steg för steg innan du svarar." : null,
+          v.uncertainty
+            ? (v.material
+                ? "Om underlaget inte räcker eller om du är osäker, säg det i stället för att gissa."
+                : "Om du saknar information eller är osäker, säg det i stället för att gissa.")
+            : null
+        ),
+        example: {
+          task: "Förklara skillnaden mellan en class och en record i C#, och ge ett kort kodexempel för varje.",
+          context: "Jag är student i termin 1 och pluggar inför ett prov. Jag förstår inte när man ska välja vilken.",
+          requirements: "Max en halv A4-sida\nAnpassa för nybörjare\nAnvänd .NET 10",
+          format: "Löpande text, kodexemplen i kodblock och en kort jämförelsetabell på slutet.",
+          example: "",
+          material: "",
+          role: "en tålmodig lärare i C#",
+          stepByStep: false,
+          uncertainty: true
+        }
+      },
+      en: {
+        fields: [
+          {
+            id: "task", type: "textarea", rows: 3, required: true,
+            label: "Task",
+            hint: "Start with an action verb. What should the AI do, and what should the response include?",
+            placeholder: "e.g. Explain the difference between a class and a record in C#, with a code snippet for each."
+          },
+          {
+            id: "context", type: "textarea", rows: 3,
+            label: "Context: why and for whom?",
+            hint: "Who is the answer for, what will it be used for, and what problem does it solve?",
+            placeholder: "e.g. I am a first-semester student studying for an exam and don't understand when to choose which."
+          },
+          {
+            id: "requirements", type: "textarea", rows: 3,
+            label: "Requirements and constraints",
+            hint: "One per line: length, level, time, technology, budget…",
+            placeholder: "e.g. Max half an A4 page\nTailor for beginners\nUse .NET 10"
+          },
+          {
+            id: "format", type: "textarea", rows: 2,
+            label: "How should the response look?",
+            hint: "Describe what you want, not what to avoid. Table, list, prose, code…",
+            placeholder: "e.g. Prose followed by a short comparison table at the end."
+          },
+          {
+            id: "example", type: "textarea", rows: 4,
+            label: "Example of desired style (optional)",
+            hint: "An example speaks louder than a long description."
+          },
+          {
+            id: "material", type: "textarea", rows: 5,
+            label: "Reference material (optional)",
+            hint: "Text, code, or data the AI should build upon. Long material goes last in the prompt."
+          },
+          {
+            id: "role", type: "text",
+            label: "Role (optional)",
+            hint: "Keep it simple. Great for tone and perspective, but often unnecessary.",
+            placeholder: "e.g. a patient teacher in C#"
+          },
+          { id: "stepByStep", type: "checkbox", label: "Ask the AI to think step by step before answering (great for tough problems)" },
+          { id: "uncertainty", type: "checkbox", label: "Allow the AI to state if it does not know, rather than guessing", default: true }
+        ],
+        build: (v) => lines(
+          v.role ? `You are ${v.role}.\n` : null,
+          v.task,
+          "",
+          block("Context:", v.context),
+          block("Requirements:", v.requirements && bullets(v.requirements)),
+          block("Response format:", v.format),
+          block("Here is an example of the desired style:", v.example),
+          block("Reference material:", v.material),
+          v.material ? "Execute the task above based on the reference material.\n" : null,
+          v.stepByStep ? "Think step by step before answering." : null,
+          v.uncertainty
+            ? (v.material
+                ? "If the reference material is insufficient or you are unsure, state that instead of guessing."
+                : "If you lack information or are uncertain, state that instead of guessing.")
+            : null
+        ),
+        example: {
+          task: "Explain the difference between a class and a record in C#, and give a concise code example for each.",
+          context: "I am a first-semester student studying for an exam. I do not understand when to use which.",
+          requirements: "Max half an A4 page\nTailor for beginners\nUse .NET 10",
+          format: "Cohesive prose, code examples in blocks, and a short comparison table at the end.",
+          example: "",
+          material: "",
+          role: "a patient instructor in C#",
+          stepByStep: false,
+          uncertainty: true
+        }
+      },
+      fa: {
+        fields: [
+          {
+            id: "task", type: "textarea", rows: 3, required: true,
+            label: "وظیفه اصلی (Task)",
+            hint: "با یک فعل دستوری شروع کنید. هوش مصنوعی چه کاری باید انجام دهد و پاسخ چه محتوایی دارد؟",
+            placeholder: "مثال: تفاوت بین class و record را در سی‌شارپ توضیح بده و برای هر کدام یک قطعه کد بنویس."
+          },
+          {
+            id: "context", type: "textarea", rows: 3,
+            label: "زمینه و هدف: چرا و برای چه کسی؟",
+            hint: "پاسخ برای چه مخاطبی تهیه می‌شود، چه کاربردی دارد و چه مشکلی را حل می‌کند؟",
+            placeholder: "مثال: من دانشجوی ترم یک هستم و برای امتحان درس می‌خوانم؛ متوجه نمی‌شوم چه زمانی باید کدام را انتخاب کنم."
+          },
+          {
+            id: "requirements", type: "textarea", rows: 3,
+            label: "الزامات و محدودیت‌ها",
+            hint: "هر مورد در یک خط: طول متن، سطح دانش، تکنولوژی...",
+            placeholder: "مثال: حداکثر در نصف صفحه\nمناسب برای مبتدیان\nاستفاده از .NET 10"
+          },
+          {
+            id: "format", type: "textarea", rows: 2,
+            label: "فرمت و ساختار پاسخ",
+            hint: "آنچه می‌خواهید را بنویسید نه آنچه نمی‌خواهید. جدول، لیست، متن روان، بلوک‌های کد...",
+            placeholder: "مثال: متن روان با بلوک‌های کد و یک جدول مقایسه‌ای خلاصه در پایان."
+          },
+          {
+            id: "example", type: "textarea", rows: 4,
+            label: "نمونه استایل دلخواه (اختیاری)",
+            hint: "یک نمونه عملی از صدها خط توضیح گویاتر است."
+          },
+          {
+            id: "material", type: "textarea", rows: 5,
+            label: "داده‌های مرجع یا متن پایه (اختیاری)",
+            hint: "متن، کد یا داده‌ای که هوش مصنوعی باید بر مبنای آن عمل کند. متون طولانی در انتهای پرامپت قرار می‌گیرند."
+          },
+          {
+            id: "role", type: "text",
+            label: "نقش (اختیاری)",
+            hint: "ساده بنویسید؛ برای زاویه دید و لحن عالی است اما همیشه الزامی نیست.",
+            placeholder: "مثال: یک استاد صبور و مسلط به برنامه‌نویسی C#"
+          },
+          { id: "stepByStep", type: "checkbox", label: "از هوش مصنوعی بخواه پیش از پاسخ دادن گام‌به‌گام فکر کند (برای مسائل سخت)" },
+          { id: "uncertainty", type: "checkbox", label: "به هوش مصنوعی اجازه بده اگر پاسخ را نمی‌داند به جای حدس زدن بگوید نمی‌دانم", default: true }
+        ],
+        build: (v) => lines(
+          v.role ? `در نقش ${v.role} عمل کن.\n` : null,
+          v.task,
+          "",
+          block("زمینه و هدف:", v.context),
+          block("الزامات:", v.requirements && bullets(v.requirements)),
+          block("فرمت خروجی:", v.format),
+          block("نمونه‌ای از استایل دلخواه من:", v.example),
+          block("داده‌های مرجع:", v.material),
+          v.material ? "وظیفه بالا را بر مبنای داده‌های مرجع فوق انجام بده.\n" : null,
+          v.stepByStep ? "پیش از پاسخ دادن، گام‌به‌گام فکر کن." : null,
+          v.uncertainty
+            ? (v.material
+                ? "اگر داده‌های مرجع کافی نیست یا مطمئن نیستی، به جای حدس زدن صریحاً بگو."
+                : "اگر اطلاعاتی نداری یا مطمئن نیستی، به جای حدس زدن صریحاً بگو.")
+            : null
+        ),
+        example: {
+          task: "تفاوت بین class و record در C# را توضیح بده و برای هر کدام یک نمونه کد کوتاه بیاور.",
+          context: "من دانشجوی ترم اول هستم و برای امتحان آماده می‌شوم. نمی‌دانم در چه شرایطی باید کدام را انتخاب کنم.",
+          requirements: "حداکثر در نصف صفحه\nمناسب برای مبتدیان\nاستفاده از آخرین نسخه .NET",
+          format: "متن روان، نمونه‌ها در بلوک‌های کد و یک جدول مقایسه‌ای در انتها.",
+          example: "",
+          material: "",
+          role: "یک استاد صبور زبان C#",
+          stepByStep: false,
+          uncertainty: true
+        }
       }
-    });
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function renderPage() {
+      const lang = I18N.getLang();
+      const cfg = CONFIGS[lang] || CONFIGS.sv;
+
+      $("metaTitle").textContent = I18N.t("bpPageTitle");
+      $("pageTitle").textContent = I18N.t("bpHeading");
+      $("pageLead").textContent = I18N.t("bpLead");
+      $("back").textContent = I18N.t("backAll");
+      $("submit").textContent = I18N.t("btnSubmit");
+      $("example").textContent = I18N.t("btnExample");
+      $("reset").textContent = I18N.t("btnReset");
+      $("resultTitle").textContent = I18N.t("yourPrompt");
+      $("copyAgain").textContent = I18N.t("btnCopyAgain");
+      $("whyTitle").textContent = I18N.t("bpWhyTitle");
+      $("sourcePrefix").textContent = I18N.t("source");
+
+      // Why list
+      $("whyList").innerHTML = I18N.UI.bpWhyList.map((item) => `<li>${item[lang] || item.sv}</li>`).join("");
+
+      createGenerator({
+        fields: cfg.fields,
+        build: cfg.build,
+        example: cfg.example,
+        storageKey: "basta-praxis"
+      });
+    }
+
+    I18N.renderSwitcher(document.getElementById("topNav"));
+    renderPage();
+    window.addEventListener("langchange", () => renderPage());
   </script>
 </body>
 </html>
